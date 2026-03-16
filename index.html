@@ -108,14 +108,16 @@
                 Emergency Medical Services Ubonratchathani
             </p>
             
-            <div class="bg-white p-1.5 rounded-full shadow-2xl flex max-w-2xl mx-auto overflow-hidden border border-white/20">
-                <input type="text" placeholder="ค้นหาหน่วยงาน, เบอร์โทร หรือพิกัด..." 
-                    class="flex-grow bg-transparent p-3 text-gray-700 placeholder-gray-400 focus:outline-none px-8 text-base tracking-wide">
-                <button class="bg-[#003366] text-white w-14 h-12 rounded-full hover:bg-blue-900 transition-all flex items-center justify-center">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </button>
-            </div>
-        </div>
+            <form action="search.html" method="GET" class="bg-white p-1.5 rounded-full shadow-2xl flex max-w-2xl mx-auto overflow-hidden border border-white/20">
+    
+    <input type="text" name="q" placeholder="ค้นหาหน่วยงาน, เบอร์โทร..." 
+        class="flex-grow bg-transparent p-3 text-gray-700 focus:outline-none px-8 text-base">
+    
+    <button type="submit" class="bg-[#003366] text-white w-14 h-12 rounded-full hover:bg-blue-900 flex items-center justify-center">
+        <i class="fa-solid fa-magnifying-glass"></i>
+    </button>
+
+</form>
     </header>
 
     <section class="container mx-auto px-4 -mt-12 relative z-20 mb-20">
@@ -193,6 +195,7 @@
             </div>
         </div>
     </section>
+
     <footer class="niem-blue text-white pt-16 pb-8 px-4 relative overflow-hidden">
         <div class="absolute top-0 right-0 opacity-10 translate-x-20 -translate-y-20">
             <i class="fa-solid fa-map-location-dot text-[300px]"></i>
