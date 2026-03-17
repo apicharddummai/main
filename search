@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ผลการค้นหา - EMS UBON</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: 'Prompt', sans-serif; background: #f8fafc; }
+        
+        /* สไตล์หน้า Loading */
+        .digital-loader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+        }
+        .gear-spin {
+            animation: spin 2s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-10">
+    <div class="max-w-2xl mx-auto">
+        
+        <div class="flex items-center gap-4 mb-8">
+            <a href="main.html" class="w-10 h-10 flex items-center justify-center bg-white rounded-xl shadow-sm text-blue-900 border border-slate-100 hover:bg-blue-900 hover:text-white transition-all">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <h1 class="text-xl font-bold text-slate-800">ระบบสืบค้นข้อมูล EMS</h1>
+        </div>
+
+        <div id="loadingArea" class="digital-loader bg-white rounded-[2rem] border border-blue-100 shadow-xl shadow-blue-900/5 p-10 text-center">
+            <div class="relative mb-6">
+                <i class="fa-solid fa-gear text-5xl text-blue-900/20 gear-spin"></i>
+                <i class="fa-solid fa-database text-2xl text-blue-900 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></i>
+            </div>
+            <h2 class="text-lg font-bold text-blue-900 mb-2 animate-pulse">กำลังเข้าถึงระบบฐานข้อมูล</h2>
+            <p class="text-slate-500 text-sm font-light">กำลังดึงข้อมูลจากระบบจัดการข้อมูลดิจิทัล...</p>
+            
+            <div class="w-48 h-1.5 bg-slate-100 rounded-full mt-6 overflow-hidden">
+                <div class="h-full bg-blue-900 rounded-full" style="animation: load 2s ease-in-out infinite;"></div>
+            </div>
+            <style>
+                @keyframes load { 0% { width: 0%; } 50% { width: 70%; } 100% { width: 100%; } }
+            </style>
+        </div>
+
+        <div id="resultArea" class="hidden space-y-4">
+            </div>
+
+    </div>
+
+    <script>
+        const database = [
+    { name: "รพ.สรรพสิทธิประสงค์", tels: ["045-244-973", "045-319-200"], area: "อ.เมืองอุบลราชธานี", keywords: "สปส, โรงพยาบาลสรรพสิทธิ์" },
+    { name: "รพ.วารินชำราบ", tels: ["045-321-243", "081-234-5678"], area: "อ.วารินชำราบ", keywords: "วาริน" },
+    { name: "ศูนย์รับแจ้งเหตุ อบจ.อุบล", tels: ["1669", "045-352-450"], area: "อ.เมืองอุบลราชธานี", keywords: "อบจ, 1669, 157" },
+   
+];
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchText = urlParams.get('q') || "";
+        const resultArea = document.getElementById('resultArea');
+        const loadingArea = document.getElementById('loadingArea');
+
+        function performSearch() {
+            if (!searchText) {
+                loadingArea.innerHTML = `<p class="text-slate-400">ไม่พบคำค้นหา กรุณากลับหน้าหลัก</p>`;
+                return;
+            }
+
+           
+            setTimeout(() => {
+                loadingArea.classList.add('hidden');
+                resultArea.classList.remove('hidden');
+                resultArea.classList.add('fade-in-up');
+
+                const results = database.filter(item => 
+                    item.name.toLowerCase().includes(searchText.toLowerCase()) || 
+                    item.area.toLowerCase().includes(searchText.toLowerCase()) || 
+                    (item.keywords && item.keywords.includes(searchText))
+                );
+
+                if (results.length > 0) {
+                    resultArea.innerHTML = `
+                        <p class="text-sm text-slate-500 mb-4 px-2">พบข้อมูลที่ตรงกับ <span class="text-blue-900 font-bold">"${searchText}"</span></p>
+                    ` + results.map(item => `
+                        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="font-bold text-lg text-slate-800">${item.name}</h3>
+                                    <p class="text-slate-500 text-sm"><i class="fa-solid fa-location-dot mr-1"></i>${item.area}</p>
+                                </div>
+                                <span class="bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-1 rounded-md uppercase">Digital Map</span>
+                            </div>
+                            <div class="grid grid-cols-1 gap-2">
+                                ${item.tels.map(t => `
+                                    <a href="tel:${t}" class="flex items-center justify-between bg-slate-50 hover:bg-blue-900 hover:text-white px-4 py-3 rounded-2xl transition-all group">
+                                        <span class="font-semibold text-blue-900 group-hover:text-white">${t}</span>
+                                        <div class="w-8 h-8 bg-blue-100 group-hover:bg-blue-800 rounded-full flex items-center justify-center text-blue-900 group-hover:text-white">
+                                            <i class="fa-solid fa-phone-flip text-xs"></i>
+                                        </div>
+                                    </a>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    resultArea.innerHTML = `
+                        <div class="bg-white p-12 rounded-[2rem] text-center border border-dashed border-slate-200">
+                            <i class="fa-solid fa-magnifying-glass text-slate-200 text-4xl mb-4"></i>
+                            <h3 class="font-bold text-slate-800">ไม่พบข้อมูล</h3>
+                            <p class="text-slate-500 text-sm">ขออภัย ไม่พบข้อมูลในระบบจัดการข้อมูลดิจิทัล</p>
+                            <a href="main.html" class="inline-block mt-6 text-blue-900 font-bold text-sm underline">ลองค้นหาใหม่</a>
+                        </div>`;
+                }
+            }, 1800); 
+        }
+
+        performSearch();
+		
+		// ฟังก์ชันป้องกันการตรวจสอบโค้ดและปุ่มลัด
+(function() {
+    // 1. ป้องกันการคลิกขวา
+    document.addEventListener('contextmenu', e => e.preventDefault());
+
+    // 2. ป้องกันปุ่มลัดต่างๆ
+    document.onkeydown = function(e) {
+        // ป้องกัน F12
+        if (e.keyCode == 123) return false;
+        
+        // ป้องกัน Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C (Inspect Element)
+        if (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0) || e.keyCode == 'C'.charCodeAt(0))) {
+            return false;
+        }
+        
+        // ป้องกัน Ctrl+U (View Source)
+        if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
+            return false;
+        }
+
+        // ป้องกัน Ctrl+S (Save Page)
+        if (e.ctrlKey && e.keyCode == 'S'.charCodeAt(0)) {
+            return false;
+        }
+    };
+})();
+		
+    </script>
+</body>
+</html>
