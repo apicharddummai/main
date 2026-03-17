@@ -299,12 +299,37 @@
         }
     }
 
+    // ฟังก์ชันสร้างการแจ้งเตือนแบบสวยๆ
+    function showToast(message, isSuccess = true) {
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            padding: 15px 30px; border-radius: 50px; color: white; z-index: 10001;
+            font-family: 'Prompt', sans-serif; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            background: ${isSuccess ? '#10b981' : '#ef4444'};
+            transition: all 0.5s ease; opacity: 0;
+        `;
+        toast.innerText = message;
+        document.body.appendChild(toast);
+
+        // แสดงผล
+        setTimeout(() => { toast.style.opacity = '1'; toast.style.top = '40px'; }, 100);
+
+        // หายไปเองใน 3 วินาที
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 500);
+        }, 3000);
+    }
+
     const cForm = document.getElementById('complaintForm');
     if(cForm) {
         cForm.onsubmit = async function(e) {
             e.preventDefault();
             const btn = document.getElementById('btn-submit');
-            btn.innerText = "กำลังส่ง...";
+            const originalBtnText = btn.innerText;
+            
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> กำลังส่ง...';
             btn.disabled = true;
 
             const formData = new FormData(this);
@@ -318,20 +343,21 @@
                 });
                 
                 if (response.status === 200) {
-                    alert("✅ ส่งข้อมูลร้องเรียนสำเร็จ!");
+                    showToast("✅ ส่งข้อมูลร้องเรียนเรียบร้อยแล้ว");
                     this.reset();
-                    toggleComplaintModal();
+                    setTimeout(toggleComplaintModal, 500); // ปิดหน้าต่างหลังจากส่งสำเร็จครู่หนึ่ง
                 } else {
-                    alert("❌ เกิดข้อผิดพลาด กรุณาลองใหม่");
+                    showToast("❌ เกิดข้อผิดพลาด กรุณาลองใหม่", false);
                 }
             } catch (err) {
-                alert("❌ ระบบขัดข้อง");
+                showToast("❌ ระบบขัดข้อง โปรดเช็คเน็ต", false);
             } finally {
-                btn.innerText = "ส่งข้อมูลร้องเรียน";
+                btn.innerText = originalBtnText;
                 btn.disabled = false;
             }
         };
     }
+</script>
 </script>
 </body>
 </html>
