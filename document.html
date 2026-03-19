@@ -55,23 +55,37 @@
         // 1. ข้อมูลเอกสาร (ใส่ลิงก์ Google Drive ปกติได้เลย!)
         // ==========================================
         const allDocuments = [
-            { title: "กำหนดการ โครงการอบรมฟื้นฟู ปี 2569", link: "https://drive.google.com/file/d/1ToqRXPcTo_hpx9W1XKRn7aE6c7R15Knu/view?usp=drive_link" },
-            { title: "แบบตอบรับ โครงการอบรมฟื้นฟู ปี 2569", link: "https://drive.google.com/file/d/1Y002JUS3ka6QQEIE_P5mViIURaAA3LyV/view?usp=sharing" },
-            { title: "หนังสือเชิญอบรม โครงการอบรมฟื้นฟู รุ่นที่ 1 ปี 2569", link: "https://drive.google.com/file/d/1SNzeKizBqv6MDDW23es07qsghn-eiVZf/view?usp=sharing" },
-            { title: "หนังสือเชิญอบรม โครงการอบรมฟื้นฟู รุ่นที่ 2 ปี 2569", link: "https://drive.google.com/file/d/19Uy1DviE4Iwt3o7EA5Z3d-4EIOHdz0ch/view?usp=sharing" },
-			{ title: "หนังสือเชิญอบรม โครงการอบรมฟื้นฟู รุ่นที่ 3 ปี 2569", link: "https://drive.google.com/file/d/1CSIxHnNUBBGC3kHdUPuymjSTXmR18pyg/view?usp=sharing" },
-			{ title: "หนังสือเชิญอบรม โครงการอบรมฟื้นฟู รุ่นที่ 4 ปี 2569", link: "https://drive.google.com/file/d/1t9SkfmdE_xOwLojgVqc-Qa5PbWRnFtxj/view?usp=sharing" },
-			{ title: "หนังสือเชิญอบรม โครงการอบรมฟื้นฟู รุ่นที่ 5 ปี 2569", link: "https://drive.google.com/file/d/12GQGCsQnxBGRFo0OZ_kMLPX9vSqL9y1v/view?usp=sharing" },
-			{ title: "หนังสือเชิญอบรม โครงการอบรมฟื้นฟู รุ่นที่ 6 ปี 2569", link: "https://drive.google.com/file/d/1I29hBMxDAyjE350Wn8EZB0VpD5RSUyJm/view?usp=sharing" }
+            { title: "กำหนดการ โครงการอบรมฟื้นฟู /2569", link: "https://drive.google.com/file/d/1ToqRXPcTo_hpx9W1XKRn7aE6c7R15Knu/view?usp=drive_link" },
+            { title: "แบบตอบรับ โครงการอบรมฟื้นฟู /2569", link: "https://drive.google.com/file/d/1Y002JUS3ka6QQEIE_P5mViIURaAA3LyV/view?usp=sharing" },
+            { title: "หนังสือเชิญอบรม โครงการอบรมฟื้นฟู รุ่นที่ 1/2569", link: "https://drive.google.com/file/d/1SNzeKizBqv6MDDW23es07qsghn-eiVZf/view?usp=sharing" },
+            { title: "หนังสือเชิญอบรม โครงการอบรมฟื้นฟู รุ่นที่ 2/2569", link: "https://drive.google.com/file/d/19Uy1DviE4Iwt3o7EA5Z3d-4EIOHdz0ch/view?usp=sharing" },
+			{ title: "หนังสือเชิญอบรม โครงการอบรมฟื้นฟู รุ่นที่ 3/2569", link: "https://drive.google.com/file/d/1CSIxHnNUBBGC3kHdUPuymjSTXmR18pyg/view?usp=sharing" },
+			{ title: "หนังสือเชิญอบรม โครงการอบรมฟื้นฟู รุ่นที่ 4/2569", link: "https://drive.google.com/file/d/1t9SkfmdE_xOwLojgVqc-Qa5PbWRnFtxj/view?usp=sharing" },
+			{ title: "หนังสือเชิญอบรม โครงการอบรมฟื้นฟู รุ่นที่ 5/2569", link: "https://drive.google.com/file/d/12GQGCsQnxBGRFo0OZ_kMLPX9vSqL9y1v/view?usp=sharing" },
+			{ title: "หนังสือเชิญอบรม โครงการอบรมฟื้นฟู รุ่นที่ 5/2569", link: "https://drive.google.com/file/d/12GQGCsQnxBGRFo0OZ_kMLPX9vSqL9y1v/view?usp=sharing" },
+			{ title: "หนังสือเชิญอบรม โครงการอบรมฟื้นฟู รุ่นที่ 6/2569", link: "https://drive.google.com/file/d/1I29hBMxDAyjE350Wn8EZB0VpD5RSUyJm/view?usp=sharing" }
             
         ];
 
-        // ฟังก์ชันแปลงลิงก์ Google Drive ให้เป็น Direct Download
-        function getDirectLink(url) {
-            if (url.includes('drive.google.com')) {
-                const fileId = url.match(/\/d\/(.+?)\//);
-                if (fileId && fileId[1]) {
-                    return `https://drive.google.com/uc?export=download&id=${fileId[1]}`;
+       function getDirectLink(url) {
+            if (!url) return "#";
+            if (url.includes('docs.google.com') || url.includes('drive.google.com')) {
+                // ดึง File ID ออกมาให้แม่นยำ
+                const parts = url.split('/');
+                const dIndex = parts.indexOf('d');
+                const fileId = parts[dIndex + 1];
+                
+                if (fileId) {
+                    // 1. ถ้าเป็น Google Docs -> โหลดเป็น Word (.docx)
+                    if (url.includes('/document/')) {
+                        return `https://docs.google.com/document/d/${fileId}/export?format=docx`;
+                    }
+                    // 2. ถ้าเป็น Google Sheets -> โหลดเป็น Excel (.xlsx)
+                    if (url.includes('/spreadsheets/')) {
+                        return `https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx`;
+                    }
+                    // 3. ถ้าเป็นไฟล์ทั่วไป (PDF, รูปภาพ, Zip) -> ดาวน์โหลดตรง
+                    return `https://drive.google.com/uc?export=download&id=${fileId}`;
                 }
             }
             return url;
