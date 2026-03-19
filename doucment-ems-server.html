@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Document System - EMS 1669 Ubon</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: 'Prompt', sans-serif; background: #f8fafc; -webkit-user-select: none; user-select: none; }
+        .hidden { display: none; }
+        .staff-gradient { background: linear-gradient(135deg, #001e3c 0%, #003366 100%); }
+        body::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <div id="loginSection" class="h-screen flex items-center justify-center p-4 staff-gradient">
+        <div class="w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-amber-400/20">
+            <div class="bg-[#002855] p-10 text-center text-white border-b-4 border-amber-500">
+                <div class="bg-amber-500 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <i class="fa-solid fa-user-tie text-2xl text-[#002855]"></i>
+                </div>
+                <h2 class="text-xl font-bold">ระบบดาวน์โหลดเอกสารสำหรับเจ้าหน้าที่</h2>
+                <p class="text-[10px] text-amber-400 uppercase tracking-widest mt-1 font-semibold">ศูนย์รับแจ้งเหตุและสั่งการ จังหวัดอุบลราชธานี 1669</p>
+            </div>
+            
+            <form id="loginForm" class="p-8">
+                <div class="mb-5">
+                    <label class="block text-xs font-bold text-slate-400 mb-2 uppercase">Username</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-id-badge absolute left-4 top-3.5 text-slate-300"></i>
+                        <input type="text" id="username" required class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-amber-500 transition" placeholder="ระบุชื่อผู้ใช้">
+                    </div>
+                </div>
+                <div class="mb-8">
+                    <label class="block text-xs font-bold text-slate-400 mb-2 uppercase">Password</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-key absolute left-4 top-3.5 text-slate-300"></i>
+                        <input type="password" id="password" required class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-amber-500 transition" placeholder="••••••••">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-[#002855] hover:bg-amber-600 text-white py-4 rounded-xl font-bold shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-unlock"></i> เข้าสู่ระบบ
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="documentSection" class="hidden min-h-screen">
+        <nav class="h-16 bg-[#002855] flex items-center justify-between px-6 shadow-md text-white sticky top-0 z-50 border-b border-amber-500/30">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-folder-tree text-amber-500"></i>
+                <h1 class="font-medium text-sm tracking-tight">คลังเก็บเอกสารสำหรับเจ้าหน้าที่ประจำศูนย์รับแจ้งเหตุและสั่งการ 1669 อุบลฯ</h1>
+            </div>
+            <button onclick="location.reload()" class="text-[10px] font-bold bg-amber-600 hover:bg-amber-700 px-4 py-2 rounded-lg transition border border-amber-400/50">
+                <i class="fa-solid fa-power-off mr-1"></i> ออกจากระบบ
+            </button>
+        </nav>
+
+        <div class="container mx-auto px-4 py-8">
+            <div class="max-w-3xl mx-auto bg-white p-6 md:p-10 rounded-[3rem] shadow-xl border border-slate-100">
+                
+                <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-[#002855]">ดาวน์โหลดเอกสาร</h2>
+                        <p class="text-slate-400 text-xs">เลือกเอกสารที่ต้องการบันทึกลงในอุปกรณ์</p>
+                    </div>
+                    <div class="relative w-full md:w-64">
+                        <input type="text" id="searchInput" class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-full bg-slate-50 text-sm focus:ring-2 focus:ring-amber-500 outline-none" placeholder="ค้นหาเอกสาร...">
+                        <i class="fa-solid fa-search absolute left-4 top-3 text-slate-300 text-xs"></i>
+                    </div>
+                </div>
+
+                <div id="documentContainer" class="space-y-3 min-h-[350px]"></div>
+                
+                <div id="noResults" class="hidden text-center py-20">
+                    <i class="fa-solid fa-file-circle-xmark text-4xl text-slate-200 mb-3"></i>
+                    <p class="text-slate-400 italic text-sm">-- ไม่พบเอกสารที่ท่านกำลังค้นหา --</p>
+                </div>
+
+                <div id="paginationContainer" class="mt-10 flex justify-center items-center gap-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 1. ข้อมูลเจ้าหน้าที่
+        const staffList = [
+            { user: "admin", pass: "166916691669" },
+			{ user: "1", pass: "1" },
+			{ user: "cm34015@gmail.com", pass: "123456" },
+            { user: "staff1", pass: "ubon1669" }
+        ];
+
+        // 2. ข้อมูลเอกสาร
+        const allDocuments = [
+            { title: "แบบฟอร์มใบเบิกวัสดุสำนักงาน", link: "https://docs.google.com/document/d/1Rz0Jexma7i-dvyLzOQJWuaVUfYRs3-qA/edit?usp=drive_link&ouid=114162948481129721157&rtpof=true&sd=true" },
+            { title: "หน้าปก สรุปเบิก-จ่ายใบเคส", link: "https://docs.google.com/document/d/1hKAlZcMroQX_5B69nBzCfzhaBNDDTFw5/edit?usp=sharing&ouid=114162948481129721157&rtpof=true&sd=true" },
+            { title: "สรุปเบิกแบบบันทึกใบเคส", link: "https://docs.google.com/spreadsheets/d/1FLBP6I-GddmeBhfMRbdwKq3MCSfy8lL3/edit?usp=sharing&ouid=114162948481129721157&rtpof=true&sd=true" },
+            { title: "หนังสือเชิญอบรม รุ่นที่ 2 ปี 2569", link: "" },
+            { title: "หนังสือเชิญอบรม รุ่นที่ 3 ปี 2569", link: "" },
+            { title: "ระเบียบวาระการประชุมประจำปี", link: "" }
+        ];
+
+        function getDirectLink(url) {
+    if (url.includes('docs.google.com') || url.includes('drive.google.com')) {
+        // ดึงรหัสไฟล์ (File ID) ออกมา
+        const parts = url.split('/');
+        const fileId = parts.find((p, i) => parts[i-1] === 'd');
+        
+        if (fileId) {
+            // กรณีเป็น Google Docs ให้บังคับ Export เป็นไฟล์ Word (.docx)
+            if (url.includes('/document/')) {
+                return `https://docs.google.com/document/d/${fileId}/export?format=docx`;
+            }
+            // กรณีไฟล์ทั่วไป (PDF, รูปภาพ) ใน Google Drive
+            return `https://drive.google.com/uc?export=download&id=${fileId}`;
+        }
+    }
+    return url;
+}
+        let currentPage = 1;
+        const rowsPerPage = 5;
+        let filteredDocs = [...allDocuments];
+
+        document.getElementById('loginForm').onsubmit = function(e) {
+            e.preventDefault();
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            const match = staffList.find(s => s.user === u && s.pass === p);
+
+            if(match) {
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('documentSection').classList.remove('hidden');
+                renderDocuments(1);
+            } else {
+                alert("ข้อมูลไม่ถูกต้อง! สำหรับเจ้าหน้าที่เท่านั้น");
+            }
+        };
+
+        function renderDocuments(page) {
+            const container = document.getElementById('documentContainer');
+            container.innerHTML = '';
+            let start = (page - 1) * rowsPerPage;
+            let items = filteredDocs.slice(start, start + rowsPerPage);
+
+            if(items.length === 0) {
+                document.getElementById('noResults').classList.remove('hidden');
+            } else {
+                document.getElementById('noResults').classList.add('hidden');
+                items.forEach(doc => {
+                    const downloadLink = getDirectLink(doc.link);
+                    container.innerHTML += `
+                        <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-amber-400 hover:bg-amber-50/30 transition-all group shadow-sm">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-[#002855] shadow-sm group-hover:text-amber-600 transition-all">
+                                    <i class="fa-regular fa-file-lines text-lg"></i>
+                                </div>
+                                <span class="text-sm font-semibold text-slate-700">${doc.title}</span>
+                            </div>
+                            <a href="${downloadLink}" download class="bg-[#002855] text-white px-5 py-2 rounded-xl text-xs font-bold hover:bg-amber-600 transition shadow-md flex items-center gap-2">
+                                <i class="fa-solid fa-download"></i> ดาวน์โหลดเอกสาร
+                            </a>
+                        </div>
+                    `;
+                });
+            }
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const pg = document.getElementById('paginationContainer');
+            pg.innerHTML = '';
+            let count = Math.ceil(filteredDocs.length / rowsPerPage);
+            if(count <= 1) return;
+
+            for(let i=1; i<=count; i++) {
+                let btn = document.createElement('button');
+                btn.innerText = i;
+                btn.className = `w-10 h-10 rounded-xl text-xs font-bold transition-all border ${currentPage === i ? 'bg-amber-500 text-white border-amber-500 shadow-lg' : 'bg-white text-slate-400 border-slate-200 hover:border-amber-400'}`;
+                btn.onclick = () => { currentPage = i; renderDocuments(i); window.scrollTo(0,0); };
+                pg.appendChild(btn);
+            }
+        }
+
+        document.getElementById('searchInput').oninput = (e) => {
+            const kw = e.target.value.toLowerCase();
+            filteredDocs = allDocuments.filter(d => d.title.toLowerCase().includes(kw));
+            currentPage = 1;
+            renderDocuments(1);
+        };
+
+        document.onkeydown = function(e) {
+            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73) || (e.ctrlKey && e.keyCode == 85)) return false;
+        };
+    </script>
+</body>
+</html>
