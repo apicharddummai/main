@@ -3,366 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EMS UBON - ศูนย์รับแจ้งเหตุและสั่งการจังหวัดอุบลราชธานี</title>
+    <title>Staff Document System - EMS 1669 Ubon</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" /> 
     <style>
-        body { font-family: 'Prompt', sans-serif; background-color: #f8fafc; scroll-behavior: smooth; }
-        .niem-blue { background-color: #003366; }
-        .niem-red { background-color: #cc0000; }
-        
-        .glass-nav {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-        }
-
-        /* ปรับแต่ง Card ให้ทันสมัยขึ้น */
-        .service-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .service-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 25px -5px rgba(0, 51, 102, 0.1), 0 10px 10px -5px rgba(0, 51, 102, 0.04);
-        }
-
-        .parallax-divider {
-            background-image: linear-gradient(rgba(0,51,102,0.8), rgba(0,51,102,0.8)), 
-                            url('https://i.postimg.cc/mgZ8Ckxk/454545454545.jpg');
-            background-attachment: fixed;
-            background-position: center;
-            background-size: cover;
-        }
-        
-        .btn-emergency {
-            animation: pulse-red 2s infinite;
-        }
-        @keyframes pulse-red {
-            0% { box-shadow: 0 0 0 0 rgba(204, 0, 0, 0.4); }
-            70% { box-shadow: 0 0 0 12px rgba(204, 0, 0, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(204, 0, 0, 0); }
-        }
+        body { font-family: 'Prompt', sans-serif; background: #f8fafc; -webkit-user-select: none; user-select: none; }
+        .hidden { display: none; }
+        .staff-gradient { background: linear-gradient(135deg, #001e3c 0%, #003366 100%); }
+        body::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="m-0 p-0 text-gray-800">
+<body oncontextmenu="return false;">
 
-   <div class="niem-blue text-white py-2 text-xs md:text-sm px-4">
-    <div class="container mx-auto flex justify-between items-center">
-        <span class="font-light">ศูนย์รับแจ้งเหตุและสั่งการ จังหวัดอุบลราชธานี (1669)</span>
-        <div class="flex gap-6">
-            <span class="hover:text-amber-400 cursor-pointer transition"><i class="fa-solid fa-phone mr-1"></i> สายด่วน 1669</span>
-            <a href="https://apicharddummai.github.io/main/document-ems-server.html" class="hidden md:inline hover:text-amber-400 cursor-pointer transition">
-    <i class="fa-solid fa-lock mr-1"></i> เอกสารสำหรับเจ้าหน้าที่
-</a>
-        </div>
-    </div>
-</div>
-
-    <nav class="glass-nav shadow-sm sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center gap-4">
-			    <img src="https://i.postimg.cc/SNVtZ3pX/xbc.png" alt="Logo" class="h-12 md:h-14">
-                <img src="https://i.postimg.cc/tgMz7SVd/sphch.png" alt="Logo" class="h-12 md:h-14">
-                <div class="border-l-2 border-gray-200 pl-4">
-                    <h1 class="text-blue-900 font-bold leading-none text-lg md:text-xl uppercase">EMS UBONRATCHATHANI</h1>
-                    <p class="text-gray-400 text-[10px] hidden md:block uppercase tracking-widest mt-1">Ubonratchathani 1669</p>
+    <div id="loginSection" class="h-screen flex items-center justify-center p-4 staff-gradient">
+        <div class="w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-amber-400/20">
+            <div class="bg-[#002855] p-10 text-center text-white border-b-4 border-amber-500">
+                <div class="bg-amber-500 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <i class="fa-solid fa-user-tie text-2xl text-[#002855]"></i>
                 </div>
+                <h2 class="text-xl font-bold">ระบบดาวน์โหลดเอกสารสำหรับเจ้าหน้าที่</h2>
+                <p class="text-[10px] text-amber-400 uppercase tracking-widest mt-1 font-semibold">ศูนย์รับแจ้งเหตุและสั่งการ จังหวัดอุบลราชธานี 1669</p>
             </div>
-            <div class="hidden lg:flex gap-8 text-gray-600 font-medium">
-                <a href="https://apicharddummai.github.io/main/" class="text-blue-900 border-b-2 border-blue-900 pb-1">หน้าแรก</a>
-                <a href="https://apicharddummai.github.io/main/person.html" class="hover:text-blue-900 transition">โครงสร้างบุคลากร</a>
-                <a href="https://www.facebook.com/PublicHealthUbonPAO/" target="_blank" class="hover:text-blue-900 transition">สังกัดกองสาธารณสุข อบจ.อุบลฯ</a>
-                <a href="https://apicharddummai.github.io/contact/" class="hover:text-blue-900 transition">ติดต่อเรา</a>
-            </div>
-            <a href="tel:045352450" class="btn-emergency">
-    <button class="niem-red text-white px-6 py-2.5 rounded-full font-bold shadow-lg flex items-center">
-        <span class="flex h-2 w-2 mr-2 bg-white rounded-full animate-ping"></span>
-        แจ้งเหตุ 1669
-    </button>
-</a>
-            </a>
-        </div>
-    </nav>
-
-    <header class="relative h-[550px] flex items-center justify-center text-white overflow-hidden bg-[#4A708B]">
-        <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
-        
-        <div class="relative z-10 text-center px-4 w-full max-w-4xl" data-aos="fade-up">
             
-            <div class="relative inline-block mb-8" data-aos="zoom-in">
-                <div class="absolute inset-0 bg-white/10 blur-3xl rounded-full"></div>
-                
-                <div class="relative text-[#FFCC00] text-6xl md:text-8xl drop-shadow-[0_10px_10px_rgba(0,0,0,0.3)] animate-pulse">
-                    <i class="fa-solid fa-headset"></i> 
-                </div>
-            </div>
-
-            <h2 class="text-4xl md:text-5xl font-bold mb-3 tracking-tight">
-                ระบบจัดการฐานข้อมูลดิจิทัล
-            </h2>
-
-            <p class="text-base md:text-lg font-light opacity-90 mb-1">
-                ศูนย์รับแจ้งเหตุและสั่งการจังหวัดอุบลราชธานี
-            </p>
-            
-            <p class="text-[10px] md:text-xs font-semibold text-[#FFCC00] uppercase tracking-[0.25em] mb-12 opacit-90">
-                Emergency Medical Services Ubonratchathani
-            </p>
-            
-            <form action="search.html" method="GET" class="bg-white p-1.5 rounded-full shadow-2xl flex max-w-2xl mx-auto overflow-hidden border border-white/20">
-    
-    <input type="text" name="q" placeholder="ค้นหาหน่วยงาน, เบอร์โทร..." 
-        class="flex-grow bg-transparent p-3 text-gray-700 focus:outline-none px-8 text-base">
-    
-    <button type="submit" class="bg-[#003366] text-white w-14 h-12 rounded-full hover:bg-blue-900 flex items-center justify-center">
-        <i class="fa-solid fa-magnifying-glass"></i>
-    </button>
-
-</form>
-    </header>
-
-    <section class="container mx-auto px-4 -mt-12 relative z-20 mb-20">
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6" data-aos="fade-up">
-            
-            <div onclick="window.location.href='https://apicharddummai.github.io/ems-ubon-cloud/data.html'" class="bg-white p-6 rounded-2xl shadow-md service-card text-center cursor-pointer group border-b-4 border-transparent hover:border-blue-900">
-                <div class="text-blue-700 text-3xl mb-4 group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-hospital-user"></i>
-                </div>
-                <span class="font-bold text-gray-700 text-xs md:text-sm block">ข้อมูลหน่วยปฏิบัติการ</span>
-            </div>
-
-            <div onclick="window.location.href='https://apicharddummai.github.io/ems-shift-board/'" class="bg-white p-6 rounded-2xl shadow-md service-card text-center cursor-pointer group border-b-4 border-transparent hover:border-blue-900">
-                <div class="text-blue-700 text-3xl mb-4 group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-calendar-check"></i>
-                </div>
-                <span class="font-bold text-gray-700 text-xs md:text-sm block">ตารางเวรเจ้าหน้าที่</span>
-            </div>
-
-            <div onclick="window.location.href='http://www.emsdubon.com/Regis/Registration.php'" class="bg-white p-6 rounded-2xl shadow-md service-card text-center cursor-pointer group border-b-4 border-transparent hover:border-blue-900">
-                <div class="text-blue-700 text-3xl mb-4 group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-truck-medical"></i>
-                </div>
-                <span class="font-bold text-gray-700 text-xs md:text-sm block">ขึ้นทะเบียนรถ</span>
-            </div>
-
-            <div onclick="window.location.href='https://www.google.com/maps/d/viewer?mid=1SzRb47EMI8sUQ88wFI0RB85hHwZZV2Y&ll=15.259312417338398%2C104.86156008262495&z=12'" class="bg-white p-6 rounded-2xl shadow-md service-card text-center cursor-pointer group border-b-4 border-transparent hover:border-blue-900">
-                <div class="text-blue-700 text-3xl mb-4 group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-map-location-dot"></i>
-                </div>
-                <span class="font-bold text-gray-700 text-xs md:text-sm block">พิกัดหน่วยกู้ชีพ</span>
-            </div>
-
-            <div onclick="window.location.href='#'" class="bg-white p-6 rounded-2xl shadow-md service-card text-center cursor-pointer group border-b-4 border-transparent hover:border-blue-900">
-                <div class="text-blue-700 text-3xl mb-4 group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-book-medical"></i>
-                </div>
-                <span class="font-bold text-gray-700 text-xs md:text-sm block">คลังความรู้/VDO</span>
-            </div>
-
-            <div onclick="window.location.href='https://apicharddummai.github.io/main/document.html'" class="bg-white p-6 rounded-2xl shadow-md service-card text-center cursor-pointer group border-b-4 border-transparent hover:border-blue-900">
-                <div class="text-blue-700 text-3xl mb-4 group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-file-arrow-down"></i>
-                </div>
-                <span class="font-bold text-gray-700 text-xs md:text-sm block">ดาวน์โหลดเอกสาร</span>
-            </div>
-
-        </div>
-    </section>
-
-    <div class="parallax-divider h-64 flex items-center justify-center text-white text-center">
-        <div data-aos="zoom-in">
-            <h3 class="text-2xl md:text-4xl font-bold mb-2">"มุ่งมั่นพัฒนา ระบบการแพทย์ฉุกเฉิน"</h3>
-            <p class="text-lg opacity-90">เพื่อความปลอดภัยของพี่น้องชาวอุบลราชธานี</p>
-        </div>
-    </div>
-
-    <section class="container mx-auto py-20 px-4">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div class="bg-white p-8 rounded-3xl shadow-sm text-center border-b-4 border-blue-900" data-aos="fade-up" data-aos-delay="100">
-                <div class="text-4xl font-black text-blue-900 mb-1">25</div>
-                <div class="text-gray-400 text-[10px] font-bold uppercase tracking-widest">อำเภอที่ดูแล</div>
-            </div>
-            <div class="bg-white p-8 rounded-3xl shadow-sm text-center border-b-4 border-blue-900" data-aos="fade-up" data-aos-delay="200">
-                <div class="text-4xl font-black text-blue-900 mb-1">219</div>
-                <div class="text-gray-400 text-[10px] font-bold uppercase tracking-widest">ตำบล</div>
-            </div>
-            <div class="bg-white p-8 rounded-3xl shadow-sm text-center border-b-4 border-blue-900" data-aos="fade-up" data-aos-delay="300">
-                <div class="text-4xl font-black text-blue-900 mb-1">198</div>
-                <div class="text-gray-400 text-[10px] font-bold uppercase tracking-widest">หน่วยปฏิบัติการ</div>
-            </div>
-            <div class="bg-white p-8 rounded-3xl shadow-sm text-center border-b-4 border-green-500" data-aos="fade-up" data-aos-delay="400">
-                <div class="text-4xl font-black text-green-600 mb-1">100%</div>
-                <div class="text-gray-400 text-[10px] font-bold uppercase tracking-widest">System Ready</div>
-            </div>
-        </div>
-    </section>
-
-    <footer class="niem-blue text-white pt-16 pb-8 px-4 relative overflow-hidden">
-        <div class="absolute top-0 right-0 opacity-10 translate-x-20 -translate-y-20">
-            <i class="fa-solid fa-map-location-dot text-[300px]"></i>
-        </div>
-        
-        <div class="container mx-auto relative z-10">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-16 mb-12 text-center md:text-left">
-                
-                <div>
-                    <div class="flex items-center justify-center md:justify-start gap-4 mb-6 border-l-4 border-amber-400 pl-4">
-    <div class="text-[#FFCC00] text-3xl opacity-90">
-        <i class="fa-solid fa-shield-heart"></i>
-    </div>
-    
-    <div class="flex flex-col">
-        <h4 class="font-bold text-xl uppercase tracking-tight leading-none">EMS UBON 1669</h4>
-        <p class="text-[10px] text-blue-200/50 tracking-widest mt-1 uppercase">Digital Database</p>
-    </div>
-</div>
-                    <p class="text-blue-100/70 leading-relaxed text-sm">
-                        ศูนย์รับแจ้งเหตุและสั่งการ จังหวัดอุบลราชธานี<br>
-                        ถ.แจ้งสนิท ต.ในเมือง อ.เมือง จ.อุบลราชธานี 34000
-                    </p>
-                </div>
-
-                <div class="flex flex-col text-sm">
-                    <h4 class="font-bold text-lg mb-6 border-l-4 border-amber-400 pl-4 inline-block md:block">ติดต่อ</h4>
-                    <p class="text-blue-100/70 mb-3"><i class="fa-solid fa-phone-volume mr-2 text-amber-400"></i> โทรสาร: 045-352-450</p>
-                    <p class="text-blue-100/70 mb-3"><i class="fa-solid fa-envelope mr-2 text-amber-400"></i> serverems1669@gmail.com</p>
-                    <p class="text-blue-100/70"><i class="fa-solid fa-clock mr-2 text-amber-400"></i> เปิดให้บริการ 24 ชั่วโมง</p>
-                </div>
-
-                <div>
-                    <h4 class="font-bold text-lg mb-6 border-l-4 border-amber-400 pl-4 inline-block md:block">Social Media</h4>
-                    <div class="flex justify-center md:justify-start gap-4">
-                        <a href="https://www.facebook.com/p/%E0%B8%A8%E0%B8%B9%E0%B8%99%E0%B8%A2%E0%B9%8C%E0%B8%A3%E0%B8%B1%E0%B8%9A%E0%B9%81%E0%B8%88%E0%B9%89%E0%B8%87%E0%B9%80%E0%B8%AB%E0%B8%95%E0%B8%B8%E0%B9%81%E0%B8%A5%E0%B8%B0%E0%B8%AA%E0%B8%B1%E0%B9%88%E0%B8%87%E0%B8%81%E0%B8%B2%E0%B8%A3-%E0%B8%88%E0%B8%B1%E0%B8%87%E0%B8%AB%E0%B8%A7%E0%B8%B1%E0%B8%94%E0%B8%AD%E0%B8%B8%E0%B8%9A%E0%B8%A5%E0%B8%A3%E0%B8%B2%E0%B8%8A%E0%B8%98%E0%B8%B2%E0%B8%99%E0%B8%B5-EMS1669-Ubonratchathani-61578111495046/" class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center hover:bg-blue-600 transition duration-300"><i class="fa-brands fa-facebook-f"></i></a>
-                        <a href="https://line.me/ti/g2/2w6Vs3z4Xo02_vfi3mBitxQ47kIA2nZ7d1alsw?utm_source=invitation&utm_medium=link_copy&utm_campaign=default" class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center hover:bg-green-500 transition duration-300"><i class="fa-brands fa-line text-xl"></i></a>
-                        <a href="https://www.youtube.com/@EMSUbonRatchathani" class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center hover:bg-red-600 transition duration-300"><i class="fa-brands fa-youtube"></i></a>
+            <form id="loginForm" class="p-8">
+                <div class="mb-5">
+                    <label class="block text-xs font-bold text-slate-400 mb-2 uppercase">Username</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-id-badge absolute left-4 top-3.5 text-slate-300"></i>
+                        <input type="text" id="username" required class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-amber-500 transition" placeholder="ระบุชื่อผู้ใช้">
                     </div>
-                    <p class="mt-6 text-sm text-blue-200">#ช่องทางติดตาม</p>
                 </div>
+                <div class="mb-8">
+                    <label class="block text-xs font-bold text-slate-400 mb-2 uppercase">Password</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-key absolute left-4 top-3.5 text-slate-300"></i>
+                        <input type="password" id="password" required class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-amber-500 transition" placeholder="••••••••">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-[#002855] hover:bg-amber-600 text-white py-4 rounded-xl font-bold shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-unlock"></i> เข้าสู่ระบบ
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="documentSection" class="hidden min-h-screen">
+        <nav class="h-16 bg-[#002855] flex items-center justify-between px-6 shadow-md text-white sticky top-0 z-50 border-b border-amber-500/30">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-folder-tree text-amber-500"></i>
+                <h1 class="font-medium text-sm tracking-tight">คลังเก็บเอกสารสำหรับเจ้าหน้าที่ประจำศูนย์รับแจ้งเหตุและสั่งการ 1669 อุบลฯ</h1>
             </div>
-<div class="border-t border-white/10 pt-8 text-center">
-    <p class="text-xs opacity-50 uppercase tracking-widest">
-        © 2026 EMS UBONRATCHATHANI 1669. All Rights Reserved.
-    </p>
-</div>
+            <button onclick="location.reload()" class="text-[10px] font-bold bg-amber-600 hover:bg-amber-700 px-4 py-2 rounded-lg transition border border-amber-400/50">
+                <i class="fa-solid fa-power-off mr-1"></i> ออกจากระบบ
+            </button>
+        </nav>
+
+        <div class="container mx-auto px-4 py-8">
+            <div class="max-w-3xl mx-auto bg-white p-6 md:p-10 rounded-[3rem] shadow-xl border border-slate-100">
+                
+                <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-[#002855]">ดาวน์โหลดเอกสาร</h2>
+                        <p class="text-slate-400 text-xs">เลือกเอกสารที่ต้องการบันทึกลงในอุปกรณ์</p>
+                    </div>
+                    <div class="relative w-full md:w-64">
+                        <input type="text" id="searchInput" class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-full bg-slate-50 text-sm focus:ring-2 focus:ring-amber-500 outline-none" placeholder="ค้นหาเอกสาร...">
+                        <i class="fa-solid fa-search absolute left-4 top-3 text-slate-300 text-xs"></i>
+                    </div>
+                </div>
+
+                <div id="documentContainer" class="space-y-3 min-h-[350px]"></div>
+                
+                <div id="noResults" class="hidden text-center py-20">
+                    <i class="fa-solid fa-file-circle-xmark text-4xl text-slate-200 mb-3"></i>
+                    <p class="text-slate-400 italic text-sm">-- ไม่พบเอกสารที่ท่านกำลังค้นหา --</p>
+                </div>
+
+                <div id="paginationContainer" class="mt-10 flex justify-center items-center gap-2"></div>
             </div>
         </div>
-    </footer>
+    </div>
 
-    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     <script>
-        AOS.init({ duration: 800, once: true });
-        // ป้องกันการ Copy/คลิกขวาเบื้องต้น
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.onkeydown = e => {
-            if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) return false;
-        };
-    </script>
-	
-	
-	
-	
-	
-</body>
+        // 1. ข้อมูลเจ้าหน้าที่
+        const staffList = [
+            { user: "admin", pass: "166916691669" },
+			{ user: "1", pass: "1" },
+			{ user: "cm34015@gmail.com", pass: "123456" },
+            { user: "staff1", pass: "ubon1669" }
+        ];
 
-<div id="btn-complaint" onclick="toggleComplaintModal()" style="position: fixed; bottom: 30px; right: 30px; z-index: 9999; cursor: pointer; display: flex; align-items: center; background: #dc2626; color: white; padding: 12px 24px; border-radius: 50px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); font-family: 'Prompt', sans-serif;">
-    <span style="font-weight: bold; margin-right: 12px;">แจ้งเรื่องร้องเรียน</span>
-    <div style="background: white; color: #dc2626; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-        <i class="fa-solid fa-exclamation"></i>
-    </div>
-</div>
-
-<div id="complaint-ui" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; padding: 20px; font-family: 'Prompt', sans-serif;">
-    <div style="background: white; width: 100%; max-width: 400px; border-radius: 25px; overflow: hidden;">
-        <div style="background: #1e3a8a; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="margin: 0; font-size: 18px;">ร้องเรียนออนไลน์ EMS</h3>
-            <button onclick="toggleComplaintModal()" style="background: none; border: none; color: white; font-size: 28px; cursor: pointer;">&times;</button>
-        </div>
-        
-        <form id="complaintForm" style="padding: 25px;">
-            <input type="hidden" name="access_key" value="57051275-86b5-4695-88b6-c3301dde69e7">
-            <input type="hidden" name="cc" value="cm34015@gmail.com,serverems1669@gmail">
-            <input type="checkbox" name="botcheck" style="display: none;">
-
-            <input type="text" name="name" placeholder="ชื่อ-นามสกุล" required style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 12px; outline: none;">
-            <input type="tel" name="phone" placeholder="เบอร์โทรศัพท์" required style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 12px; outline: none;">
-            <textarea name="message" placeholder="รายละเอียดเรื่อง..." required style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 12px; height: 100px; outline: none;"></textarea>
+        // 2. ข้อมูลเอกสาร
+        const allDocuments = [
+            { title: "แบบฟอร์มใบเบิกวัสดุสำนักงาน", link: "https://docs.google.com/document/d/1Rz0Jexma7i-dvyLzOQJWuaVUfYRs3-qA/edit?usp=drive_link&ouid=114162948481129721157&rtpof=true&sd=true" },
+            { title: "หน้าปก สรุปเบิก-จ่ายใบเคส", link: "https://docs.google.com/document/d/1hKAlZcMroQX_5B69nBzCfzhaBNDDTFw5/edit?usp=sharing&ouid=114162948481129721157&rtpof=true&sd=true" },
+            { title: "สรุปเบิกแบบบันทึกใบเคส", link: "https://docs.google.com/spreadsheets/d/1FLBP6I-GddmeBhfMRbdwKq3MCSfy8lL3/edit?usp=sharing&ouid=114162948481129721157&rtpof=true&sd=true" }
+      
             
-            <button type="submit" id="btn-submit" style="width: 100%; background: #dc2626; color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer;">ส่งข้อมูลร้องเรียน</button>
-        </form>
-    </div>
-</div>
+        ];
 
-<script>
-    function toggleComplaintModal() {
-        const ui = document.getElementById('complaint-ui');
-        if(ui) {
-            ui.style.display = (ui.style.display === 'none' || ui.style.display === '') ? 'flex' : 'none';
+        function getDirectLink(url) {
+    if (url.includes('docs.google.com') || url.includes('drive.google.com')) {
+        // ดึงรหัสไฟล์ (File ID) ออกมา
+        const parts = url.split('/');
+        const fileId = parts.find((p, i) => parts[i-1] === 'd');
+        
+        if (fileId) {
+            // กรณีเป็น Google Docs ให้บังคับ Export เป็นไฟล์ Word (.docx)
+            if (url.includes('/document/')) {
+                return `https://docs.google.com/document/d/${fileId}/export?format=docx`;
+            }
+            // กรณีไฟล์ทั่วไป (PDF, รูปภาพ) ใน Google Drive
+            return `https://drive.google.com/uc?export=download&id=${fileId}`;
         }
     }
+    return url;
+}
+        let currentPage = 1;
+        const rowsPerPage = 5;
+        let filteredDocs = [...allDocuments];
 
-    // ฟังก์ชันสร้างการแจ้งเตือนแบบสวยๆ
-    function showToast(message, isSuccess = true) {
-        const toast = document.createElement('div');
-        toast.style.cssText = `
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            padding: 15px 30px; border-radius: 50px; color: white; z-index: 10001;
-            font-family: 'Prompt', sans-serif; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            background: ${isSuccess ? '#10b981' : '#ef4444'};
-            transition: all 0.5s ease; opacity: 0;
-        `;
-        toast.innerText = message;
-        document.body.appendChild(toast);
-
-        // แสดงผล
-        setTimeout(() => { toast.style.opacity = '1'; toast.style.top = '40px'; }, 100);
-
-        // หายไปเองใน 3 วินาที
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            setTimeout(() => toast.remove(), 500);
-        }, 3000);
-    }
-
-    const cForm = document.getElementById('complaintForm');
-    if(cForm) {
-        cForm.onsubmit = async function(e) {
+        document.getElementById('loginForm').onsubmit = function(e) {
             e.preventDefault();
-            const btn = document.getElementById('btn-submit');
-            const originalBtnText = btn.innerText;
-            
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> กำลังส่ง...';
-            btn.disabled = true;
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            const match = staffList.find(s => s.user === u && s.pass === p);
 
-            const formData = new FormData(this);
-            const object = Object.fromEntries(formData);
-
-            try {
-                const response = await fetch('https://api.web3forms.com/submit', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify(object)
-                });
-                
-                if (response.status === 200) {
-                    showToast("✅ ส่งข้อมูลร้องเรียนเรียบร้อยแล้ว");
-                    this.reset();
-                    setTimeout(toggleComplaintModal, 500); // ปิดหน้าต่างหลังจากส่งสำเร็จครู่หนึ่ง
-                } else {
-                    showToast("❌ เกิดข้อผิดพลาด กรุณาลองใหม่", false);
-                }
-            } catch (err) {
-                showToast("❌ ระบบขัดข้อง โปรดเช็คเน็ต", false);
-            } finally {
-                btn.innerText = originalBtnText;
-                btn.disabled = false;
+            if(match) {
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('documentSection').classList.remove('hidden');
+                renderDocuments(1);
+            } else {
+                alert("ข้อมูลไม่ถูกต้อง! สำหรับเจ้าหน้าที่เท่านั้น");
             }
         };
-    }
-</script>
-</script>
+
+        function renderDocuments(page) {
+            const container = document.getElementById('documentContainer');
+            container.innerHTML = '';
+            let start = (page - 1) * rowsPerPage;
+            let items = filteredDocs.slice(start, start + rowsPerPage);
+
+            if(items.length === 0) {
+                document.getElementById('noResults').classList.remove('hidden');
+            } else {
+                document.getElementById('noResults').classList.add('hidden');
+                items.forEach(doc => {
+                    const downloadLink = getDirectLink(doc.link);
+                    container.innerHTML += `
+                        <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:border-amber-400 hover:bg-amber-50/30 transition-all group shadow-sm">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-[#002855] shadow-sm group-hover:text-amber-600 transition-all">
+                                    <i class="fa-regular fa-file-lines text-lg"></i>
+                                </div>
+                                <span class="text-sm font-semibold text-slate-700">${doc.title}</span>
+                            </div>
+                            <a href="${downloadLink}" download class="bg-[#002855] text-white px-5 py-2 rounded-xl text-xs font-bold hover:bg-amber-600 transition shadow-md flex items-center gap-2">
+                                <i class="fa-solid fa-download"></i> ดาวน์โหลดเอกสาร
+                            </a>
+                        </div>
+                    `;
+                });
+            }
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const pg = document.getElementById('paginationContainer');
+            pg.innerHTML = '';
+            let count = Math.ceil(filteredDocs.length / rowsPerPage);
+            if(count <= 1) return;
+
+            for(let i=1; i<=count; i++) {
+                let btn = document.createElement('button');
+                btn.innerText = i;
+                btn.className = `w-10 h-10 rounded-xl text-xs font-bold transition-all border ${currentPage === i ? 'bg-amber-500 text-white border-amber-500 shadow-lg' : 'bg-white text-slate-400 border-slate-200 hover:border-amber-400'}`;
+                btn.onclick = () => { currentPage = i; renderDocuments(i); window.scrollTo(0,0); };
+                pg.appendChild(btn);
+            }
+        }
+
+        document.getElementById('searchInput').oninput = (e) => {
+            const kw = e.target.value.toLowerCase();
+            filteredDocs = allDocuments.filter(d => d.title.toLowerCase().includes(kw));
+            currentPage = 1;
+            renderDocuments(1);
+        };
+
+        document.onkeydown = function(e) {
+            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73) || (e.ctrlKey && e.keyCode == 85)) return false;
+        };
+    </script>
 </body>
-</html>
-
-
 </html>
