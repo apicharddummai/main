@@ -274,10 +274,14 @@
 
 <div id="complaint-ui" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; padding: 20px; font-family: 'Prompt', sans-serif;">
     <div style="background: white; width: 100%; max-width: 400px; border-radius: 25px; overflow: hidden;">
-        <div style="background: #1e3a8a; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="margin: 0; font-size: 18px;">ร้องเรียนออนไลน์ EMS</h3>
-            <button onclick="toggleComplaintModal()" style="background: none; border: none; color: white; font-size: 28px; cursor: pointer;">&times;</button>
-        </div>
+        <div style="background: #1e3a8a; color: white; padding: 20px; position: relative; display: flex; align-items: center; justify-content: center;">
+    
+    <h3 style="margin: 0; font-size: 18px; display: flex; align-items: center; gap: 8px;">
+        📢 ร้องเรียนออนไลน์ EMS 📝
+    </h3>
+
+    <button onclick="toggleComplaintModal()" style="position: absolute; right: 20px; background: none; border: none; color: white; font-size: 28px; cursor: pointer; line-height: 1;">&times;</button>
+</div>
         
         <form id="complaintForm" style="padding: 25px;">
             <input type="hidden" name="access_key" value="57051275-86b5-4695-88b6-c3301dde69e7">
