@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full Screen Image Viewer</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #1a1a1a;
+            font-family: sans-serif;
+            color: white;
+            user-select: none; /* ป้องกันการคลุมดำ */
+            overflow: hidden;
+        }
+
+        #img-viewer {
+            width: 95%;
+            max-width: 900px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        img {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+
+        .controls {
+            margin-top: 20px;
+        }
+
+        /* ปุ่มสัญลักษณ์ [] แบบโปร่งใส */
+        .btn-fs {
+            padding: 8px 15px;
+            font-size: 20px;
+            cursor: pointer;
+            background: transparent;
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 4px;
+            transition: 0.3s;
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        .btn-fs:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: #ffffff;
+            transform: scale(1.1);
+        }
+
+        /* สไตล์ตอน Fullscreen */
+        #img-viewer:fullscreen {
+            width: 100vw;
+            height: 100vh;
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #img-viewer:fullscreen img {
+            max-height: 100vh;
+            width: auto;
+            border-radius: 0;
+        }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <div id="img-viewer">
+        <img src="https://i.postimg.cc/c47dKzXs/chi-phay-nis-ny-s-ngkar-phaenth-l-as-d.png" alt="Map">
+    </div>
+
+    <div class="controls">
+        <button class="btn-fs" onclick="toggleFullScreen()">ขยายจอ</button>
+    </div>
+
+    <script>
+        function toggleFullScreen() {
+            let elem = document.getElementById("img-viewer");
+            if (!document.fullscreenElement) {
+                if (elem.requestFullscreen) { elem.requestFullscreen(); }
+                else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); }
+                else if (elem.msRequestFullscreen) { elem.msRequestFullscreen(); }
+            } else {
+                if (document.exitFullscreen) { document.exitFullscreen(); }
+            }
+        }
+
+        // ล็อคคีย์บอร์ด (F12, Ctrl+U, etc.)
+        document.onkeydown = function(e) {
+            if(event.keyCode == 123) return false;
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) return false;
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false;
+            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
+        };
+    </script>
+
+</body>
+</html>
