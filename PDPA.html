@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <link href="https://fonts.googleapis.com/css2?family=Sarabun&display=swap" rel="stylesheet">
   <style>
-    /* เพิ่มการล็อกการคลุมดำและป้องกันการก๊อปปี้ที่สมบูรณ์ขึ้น */
     body { 
       font-family: 'Sarabun', sans-serif; background: #f4f7f6; padding: 20px; 
       -webkit-user-select: none; -ms-user-select: none; user-select: none; 
@@ -14,6 +13,10 @@
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th { background: #007bff; color: white; padding: 15px; font-size: 16px; }
     td { border-bottom: 1px solid #eee; padding: 18px; text-align: center; font-size: 15px; }
+    
+    /* ปรับให้ชื่อชิดซ้าย */
+    td.name-col { text-align: left; padding-left: 20px; }
+    
     tr:nth-child(even) { background-color: #f9f9f9; }
   </style>
 </head>
@@ -24,34 +27,25 @@
   <table id="myTable">
     <thead>
       <tr>
+        <th style="width: 10%;">ลำดับ</th>
         <th>ชื่อ-นามสกุล</th>
         <th>วันหมดอายุ</th>
         <th>คงเหลือ</th>
         <th>สถานะ</th>
       </tr>
     </thead>
-    <tbody><tr><td colspan="4">กำลังดึงข้อมูล...</td></tr></tbody>
+    <tbody><tr><td colspan="5">กำลังดึงข้อมูล...</td></tr></tbody>
   </table>
 </div>
 
 <script>
-  // 1. ล็อกคลิกขวาแบบเด็ดขาด
   document.addEventListener('contextmenu', event => event.preventDefault());
-
-  // 2. ล็อกปุ่มลัดแบบเด็ดขาด
   document.addEventListener('keydown', function(event) {
-    // ป้องกัน F12, Ctrl+U, Ctrl+Shift+I, Ctrl+S, Ctrl+A
-    if (event.keyCode === 123 || 
-       (event.ctrlKey && event.shiftKey && event.keyCode === 73) || 
-       (event.ctrlKey && event.keyCode === 85) || 
-       (event.ctrlKey && event.keyCode === 83) ||
-       (event.ctrlKey && event.keyCode === 65)) {
-        event.preventDefault();
-        return false;
+    if (event.keyCode === 123 || (event.ctrlKey && event.shiftKey && event.keyCode === 73) || (event.ctrlKey && event.keyCode === 85) || (event.ctrlKey && event.keyCode === 83) || (event.ctrlKey && event.keyCode === 65)) {
+        event.preventDefault(); return false;
     }
   });
 
-  // 3. ส่วนดึงข้อมูล (คงเดิม)
   const SHEET_ID = "1jyk7Yr7y0tFkTGc5vHrntkRxMZX6U-HmDptZPbjGD3o";
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=368374820`;
 
@@ -61,9 +55,11 @@
       const json = JSON.parse(text.substring(47).slice(0, -2));
       const tbody = document.querySelector('#myTable tbody');
       tbody.innerHTML = "";
-      json.table.rows.forEach(row => {
+      
+      json.table.rows.forEach((row, index) => {
         tbody.innerHTML += `<tr>
-          <td>${row.c[0]?.f || row.c[0]?.v || '-'}</td>
+          <td>${index + 1}</td>
+          <td class="name-col">${row.c[0]?.f || row.c[0]?.v || '-'}</td>
           <td>${row.c[1]?.f || row.c[1]?.v || '-'}</td>
           <td>${row.c[2]?.f || row.c[2]?.v || '-'}</td>
           <td>${row.c[3]?.f || row.c[3]?.v || '-'}</td>
@@ -71,7 +67,7 @@
       });
     })
     .catch(() => {
-      document.querySelector('#myTable tbody').innerHTML = "<tr><td colspan='4'>โหลดข้อมูลไม่ได้</td></tr>";
+      document.querySelector('#myTable tbody').innerHTML = "<tr><td colspan='5'>โหลดข้อมูลไม่ได้</td></tr>";
     });
 </script>
 </body>
