@@ -1,77 +1,39 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-  <meta charset="UTF-8">
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Sarabun', sans-serif; background: #f4f7f6; padding: 20px; -webkit-user-select: none; -ms-user-select: none; user-select: none; }
-    .container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-    h2 { text-align: center; color: #333; margin-bottom: 25px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th { background: #007bff; color: white; padding: 12px; font-size: 15px; }
-    td { border-bottom: 1px solid #eee; padding: 15px; text-align: center; font-size: 14px; }
-    td.name-col { text-align: left; padding-left: 15px; }
-    tr:nth-child(even) { background-color: #f9f9f9; }
-  </style>
-</head>
-<body>
-
-<div class="container">
-  <h2>📋 ตรวจสอบสถานะใบประกาศฯ</h2>
-  <table id="myTable">
-    <thead>
-      <tr>
-        <th>ลำดับ</th>
-        <th>ชื่อ-นามสกุล</th>
-        <th>วันออกใบอนุญาต</th>
-        <th>วันหมดอายุ</th>
-        <th>คงเหลือ</th>
-        <th>สถานะ</th>
-      </tr>
-    </thead>
-    <tbody><tr><td colspan="6">กำลังดึงข้อมูล...</td></tr></tbody>
-  </table>
-</div>
-
 <script>
-  // ล็อกคลิกขวาและปุ่มลัด
-  document.addEventListener('contextmenu', event => event.preventDefault());
-  document.addEventListener('keydown', function(event) {
-    if (event.keyCode === 123 || (event.ctrlKey && event.shiftKey && event.keyCode === 73) || (event.ctrlKey && event.keyCode === 85) || (event.ctrlKey && event.keyCode === 83)) {
-        event.preventDefault(); return false;
-    }
-  });
-
-  // เปลี่ยนมาดึงเป็น CSV แทน (จะดึงข้อมูลมาทุกแถวแน่นอน)
   const SHEET_ID = "1jyk7Yr7y0tFkTGc5vHrntkRxMZX6U-HmDptZPbjGD3o";
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=368374820`;
+  // ใช้ out:json เพื่อดึงข้อมูลมาให้เราจัดการต่อเองได้แม่นยำที่สุด
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=368374820`;
 
   fetch(url)
     .then(res => res.text())
-    .then(csvText => {
-      const rows = csvText.split('\n');
+    .then(text => {
+      // ตัดส่วนที่เป็น JSON ของ Google ออก
+      const json = JSON.parse(text.substring(47).slice(0, -2));
       const tbody = document.querySelector('#myTable tbody');
       tbody.innerHTML = "";
       
-      // เริ่มวนลูปจากแถวที่ 1 (ข้ามหัวตารางแถวที่ 0)
-      for(let i = 1; i < rows.length; i++) {
-        const cols = rows[i].split(',');
-        if (cols.length < 4) continue; // ข้ามแถวที่ข้อมูลไม่ครบ
-        
-        // CSV จะดึงค่าดิบมาเลย ป้องกันปัญหาวันที่เพี้ยน
+      json.table.rows.forEach((row, index) => {
+        // ดึงค่ามาโดยเช็คทั้งช่องที่แสดงผล (.f) และค่าดิบ (.v)
+        // ตำแหน่ง: B=0, E=4, F=1, G=2, H=3 (อิงตามโครงสร้างเดิมของน้า)
+        const name = row.c[0]?.v || '-';
+        const dateOut = row.c[4]?.f || row.c[4]?.v || '-';
+        const dateExpire = row.c[1]?.f || row.c[1]?.v || '-';
+        const remain = row.c[2]?.f || row.c[2]?.v || '-';
+        const status = row.c[3]?.v || '-';
+
+        // ป้องกันบรรทัดว่างที่ไม่มีชื่อ
+        if(name === '-') return;
+
         tbody.innerHTML += `<tr>
-          <td>${i}</td>
-          <td class="name-col">${cols[1]?.replace(/"/g, '') || '-'}</td>
-          <td>${cols[4]?.replace(/"/g, '') || '-'}</td>
-          <td>${cols[5]?.replace(/"/g, '') || '-'}</td>
-          <td>${cols[6]?.replace(/"/g, '') || '-'}</td>
-          <td>${cols[7]?.replace(/"/g, '') || '-'}</td>
+          <td>${index + 1}</td>
+          <td class="name-col">${name}</td>
+          <td>${dateOut}</td>
+          <td>${dateExpire}</td>
+          <td>${remain}</td>
+          <td>${status}</td>
         </tr>`;
-      }
+      });
     })
     .catch(() => {
       document.querySelector('#myTable tbody').innerHTML = "<tr><td colspan='6'>โหลดข้อมูลไม่ได้</td></tr>";
     });
 </script>
-</body>
-</html>
