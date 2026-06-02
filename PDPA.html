@@ -34,6 +34,7 @@
 </div>
 
 <script>
+  // ล็อกคลิกขวาและปุ่มลัด
   document.addEventListener('contextmenu', event => event.preventDefault());
   document.addEventListener('keydown', function(event) {
     if (event.keyCode === 123 || (event.ctrlKey && event.shiftKey && event.keyCode === 73) || (event.ctrlKey && event.keyCode === 85) || (event.ctrlKey && event.keyCode === 83)) {
@@ -41,27 +42,32 @@
     }
   });
 
+  // เปลี่ยนมาดึงเป็น CSV แทน (จะดึงข้อมูลมาทุกแถวแน่นอน)
   const SHEET_ID = "1jyk7Yr7y0tFkTGc5vHrntkRxMZX6U-HmDptZPbjGD3o";
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=368374820`;
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=368374820`;
 
   fetch(url)
     .then(res => res.text())
-    .then(text => {
-      const json = JSON.parse(text.substring(47).slice(0, -2));
+    .then(csvText => {
+      const rows = csvText.split('\n');
       const tbody = document.querySelector('#myTable tbody');
       tbody.innerHTML = "";
       
-      json.table.rows.forEach((row, index) => {
-        // เพิ่มคอลัมน์ที่ 5 (row.c[4]) คือวันออกใบอนุญาต
+      // เริ่มวนลูปจากแถวที่ 1 (ข้ามหัวตารางแถวที่ 0)
+      for(let i = 1; i < rows.length; i++) {
+        const cols = rows[i].split(',');
+        if (cols.length < 4) continue; // ข้ามแถวที่ข้อมูลไม่ครบ
+        
+        // CSV จะดึงค่าดิบมาเลย ป้องกันปัญหาวันที่เพี้ยน
         tbody.innerHTML += `<tr>
-          <td>${index + 1}</td>
-          <td class="name-col">${row.c[0]?.f || row.c[0]?.v || '-'}</td>
-          <td>${row.c[4]?.f || row.c[4]?.v || '-'}</td>
-          <td>${row.c[1]?.f || row.c[1]?.v || '-'}</td>
-          <td>${row.c[2]?.f || row.c[2]?.v || '-'}</td>
-          <td>${row.c[3]?.f || row.c[3]?.v || '-'}</td>
+          <td>${i}</td>
+          <td class="name-col">${cols[1]?.replace(/"/g, '') || '-'}</td>
+          <td>${cols[4]?.replace(/"/g, '') || '-'}</td>
+          <td>${cols[5]?.replace(/"/g, '') || '-'}</td>
+          <td>${cols[6]?.replace(/"/g, '') || '-'}</td>
+          <td>${cols[7]?.replace(/"/g, '') || '-'}</td>
         </tr>`;
-      });
+      }
     })
     .catch(() => {
       document.querySelector('#myTable tbody').innerHTML = "<tr><td colspan='6'>โหลดข้อมูลไม่ได้</td></tr>";
