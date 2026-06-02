@@ -39,6 +39,7 @@
 </div>
 
 <script>
+  // ล็อกการคลิกขวาและปุ่มลัด
   document.addEventListener('contextmenu', event => event.preventDefault());
   document.addEventListener('keydown', function(event) {
     if (event.keyCode === 123 || (event.ctrlKey && event.shiftKey && event.keyCode === 73) || (event.ctrlKey && event.keyCode === 85) || (event.ctrlKey && event.keyCode === 83) || (event.ctrlKey && event.keyCode === 65)) {
@@ -47,7 +48,8 @@
   });
 
   const SHEET_ID = "1jyk7Yr7y0tFkTGc5vHrntkRxMZX6U-HmDptZPbjGD3o";
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=368374820`;
+  // ใช้ tq=SELECT%20* เพื่อบังคับดึงข้อมูลทุกแถวป้องกันการตัดข้อมูล
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=368374820&tq=SELECT%20*`;
 
   fetch(url)
     .then(res => res.text())
