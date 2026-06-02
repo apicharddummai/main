@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun&display=swap" rel="stylesheet">
+  <style>
+    /* เพิ่มการล็อกการคลุมดำและป้องกันการก๊อปปี้ที่สมบูรณ์ขึ้น */
+    body { 
+      font-family: 'Sarabun', sans-serif; background: #f4f7f6; padding: 20px; 
+      -webkit-user-select: none; -ms-user-select: none; user-select: none; 
+    }
+    .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    h2 { text-align: center; color: #333; margin-bottom: 25px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th { background: #007bff; color: white; padding: 15px; font-size: 16px; }
+    td { border-bottom: 1px solid #eee; padding: 18px; text-align: center; font-size: 15px; }
+    tr:nth-child(even) { background-color: #f9f9f9; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>📋 ตรวจสอบสถานะใบประกาศฯ</h2>
+  <table id="myTable">
+    <thead>
+      <tr>
+        <th>ชื่อ-นามสกุล</th>
+        <th>วันหมดอายุ</th>
+        <th>คงเหลือ</th>
+        <th>สถานะ</th>
+      </tr>
+    </thead>
+    <tbody><tr><td colspan="4">กำลังดึงข้อมูล...</td></tr></tbody>
+  </table>
+</div>
+
+<script>
+  // 1. ล็อกคลิกขวาแบบเด็ดขาด
+  document.addEventListener('contextmenu', event => event.preventDefault());
+
+  // 2. ล็อกปุ่มลัดแบบเด็ดขาด
+  document.addEventListener('keydown', function(event) {
+    // ป้องกัน F12, Ctrl+U, Ctrl+Shift+I, Ctrl+S, Ctrl+A
+    if (event.keyCode === 123 || 
+       (event.ctrlKey && event.shiftKey && event.keyCode === 73) || 
+       (event.ctrlKey && event.keyCode === 85) || 
+       (event.ctrlKey && event.keyCode === 83) ||
+       (event.ctrlKey && event.keyCode === 65)) {
+        event.preventDefault();
+        return false;
+    }
+  });
+
+  // 3. ส่วนดึงข้อมูล (คงเดิม)
+  const SHEET_ID = "1jyk7Yr7y0tFkTGc5vHrntkRxMZX6U-HmDptZPbjGD3o";
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=368374820`;
+
+  fetch(url)
+    .then(res => res.text())
+    .then(text => {
+      const json = JSON.parse(text.substring(47).slice(0, -2));
+      const tbody = document.querySelector('#myTable tbody');
+      tbody.innerHTML = "";
+      json.table.rows.forEach(row => {
+        tbody.innerHTML += `<tr>
+          <td>${row.c[0]?.f || row.c[0]?.v || '-'}</td>
+          <td>${row.c[1]?.f || row.c[1]?.v || '-'}</td>
+          <td>${row.c[2]?.f || row.c[2]?.v || '-'}</td>
+          <td>${row.c[3]?.f || row.c[3]?.v || '-'}</td>
+        </tr>`;
+      });
+    })
+    .catch(() => {
+      document.querySelector('#myTable tbody').innerHTML = "<tr><td colspan='4'>โหลดข้อมูลไม่ได้</td></tr>";
+    });
+</script>
+</body>
+</html>
