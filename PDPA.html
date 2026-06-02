@@ -4,19 +4,13 @@
   <meta charset="UTF-8">
   <link href="https://fonts.googleapis.com/css2?family=Sarabun&display=swap" rel="stylesheet">
   <style>
-    body { 
-      font-family: 'Sarabun', sans-serif; background: #f4f7f6; padding: 20px; 
-      -webkit-user-select: none; -ms-user-select: none; user-select: none; 
-    }
+    body { font-family: 'Sarabun', sans-serif; background: #f4f7f6; padding: 20px; -webkit-user-select: none; -ms-user-select: none; user-select: none; }
     .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
     h2 { text-align: center; color: #333; margin-bottom: 25px; }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th { background: #007bff; color: white; padding: 15px; font-size: 16px; }
     td { border-bottom: 1px solid #eee; padding: 18px; text-align: center; font-size: 15px; }
-    
-    /* ปรับให้ชื่อชิดซ้าย */
     td.name-col { text-align: left; padding-left: 20px; }
-    
     tr:nth-child(even) { background-color: #f9f9f9; }
   </style>
 </head>
@@ -39,17 +33,17 @@
 </div>
 
 <script>
-  // ล็อกการคลิกขวาและปุ่มลัด
+  // 1. ล็อกคลิกขวาและปุ่มลัด (ป้องกันการก๊อปปี้)
   document.addEventListener('contextmenu', event => event.preventDefault());
   document.addEventListener('keydown', function(event) {
-    if (event.keyCode === 123 || (event.ctrlKey && event.shiftKey && event.keyCode === 73) || (event.ctrlKey && event.keyCode === 85) || (event.ctrlKey && event.keyCode === 83) || (event.ctrlKey && event.keyCode === 65)) {
+    if (event.keyCode === 123 || (event.ctrlKey && event.shiftKey && event.keyCode === 73) || (event.ctrlKey && event.keyCode === 85) || (event.ctrlKey && event.keyCode === 83)) {
         event.preventDefault(); return false;
     }
   });
 
+  // 2. ใช้ชุดคำสั่งดึงข้อมูลที่เสถียรที่สุด (แบบเดิมที่น้าเคยใช้ได้)
   const SHEET_ID = "1jyk7Yr7y0tFkTGc5vHrntkRxMZX6U-HmDptZPbjGD3o";
-  // ใช้ tq=SELECT%20* เพื่อบังคับดึงข้อมูลทุกแถวป้องกันการตัดข้อมูล
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=368374820&tq=SELECT%20*`;
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=368374820`;
 
   fetch(url)
     .then(res => res.text())
@@ -59,6 +53,7 @@
       tbody.innerHTML = "";
       
       json.table.rows.forEach((row, index) => {
+        // ใช้ row.c[x].f คือค่าที่จัดรูปแบบแล้ว, ถ้าไม่มีให้เอาค่าดิบ .v
         tbody.innerHTML += `<tr>
           <td>${index + 1}</td>
           <td class="name-col">${row.c[0]?.f || row.c[0]?.v || '-'}</td>
@@ -69,7 +64,7 @@
       });
     })
     .catch(() => {
-      document.querySelector('#myTable tbody').innerHTML = "<tr><td colspan='5'>โหลดข้อมูลไม่ได้</td></tr>";
+      document.querySelector('#myTable tbody').innerHTML = "<tr><td colspan='5'>ไม่สามารถดึงข้อมูลได้ โปรดตรวจสอบการแชร์ไฟล์</td></tr>";
     });
 </script>
 </body>
