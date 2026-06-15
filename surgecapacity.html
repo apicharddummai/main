@@ -322,7 +322,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, set, onValue, get, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
     
@@ -823,26 +823,40 @@
 	
 	
 	// ฟังก์ชันสำหรับ Reset ค่า Stroke โดยเฉพาะ
-function resetStrokeAtEight() {
-    const dbRef = ref(database, 'hospitals_data'); // อ้างอิง Path ข้อมูลของคุณ
+// ฟังก์ชันเช็คและ Reset
+function checkAndResetIfNeed() {
+    const dbRef = ref(database, 'system_control/last_reset_date');
     
     get(dbRef).then((snapshot) => {
-        if (!snapshot.exists()) return;
-        
-        let updates = {};
-        snapshot.forEach((childSnapshot) => {
-            let id = childSnapshot.key;
-            // สั่ง Reset เฉพาะฟิลด์ Stroke เท่านั้น!
-            // ฟิลด์อื่นที่เป็นเตียง หรือชื่อ จะไม่ถูกแตะต้อง
-            updates[id + '/stroke_walkin'] = 0;
-            updates[id + '/stroke_ems'] = 0;
-            updates[id + '/strokeUpdate'] = "Reset เมื่อ " + new Date().toLocaleDateString('th-TH');
-        });
-        
-        // ส่งคำสั่งอัปเดตไปที่ Firebase
-        update(ref(database, 'hospitals_data'), updates).then(() => {
-            console.log("ระบบ Reset ค่า Stroke เป็น 0 เรียบร้อยแล้วที่เวลา 08.00 น.");
-        });
+        const lastReset = snapshot.val(); // วันที่รีเซ็ตล่าสุดจาก Firebase
+        const today = new Date().toLocaleDateString('th-TH'); // วันที่ปัจจุบัน
+        const now = new Date();
+
+        // เงื่อนไข: ถ้าเลย 8 โมงเช้าแล้ว และวันที่ล่าสุดที่รีเซ็ตไม่ใช่วันนี้
+        if (now.getHours() >= 8 && lastReset !== today) {
+            console.log("ถึงเวลา Reset ข้อมูล...");
+            performReset(today);
+        }
+    });
+}
+
+// ฟังก์ชันสั่งเขียนค่า 0 ลง Firebase
+function performReset(today) {
+    const dbRef = ref(database);
+    let updates = {};
+    
+    // อัปเดตวันที่ล่าสุดเพื่อไม่ให้มันวน Reset ซ้ำ
+    updates['system_control/last_reset_date'] = today;
+    
+    // วนลูป Reset ค่า Stroke ของทุก รพ.
+    hospitals.forEach((h, index) => {
+        updates['hospitals_data/' + index + '/stroke_walkin'] = 0;
+        updates['hospitals_data/' + index + '/stroke_ems'] = 0;
+        updates['hospitals_data/' + index + '/strokeUpdate'] = "Reset วันที่ " + today;
+    });
+    
+    update(dbRef, updates).then(() => {
+        console.log("ระบบ Reset ค่า Stroke เป็น 0 เรียบร้อยแล้ว");
     });
 }
 
