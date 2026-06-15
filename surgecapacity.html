@@ -253,7 +253,6 @@
 
     const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
     
-    // ตั้งค่า Firebase Config ของคุณ
     const firebaseConfig = {
         apiKey: "AIzaSyDsoBamFvs5ToCU8JGKDLp1GaRXmNC--jM",
         authDomain: "surge-capacity-ubon.firebaseapp.com",
@@ -269,51 +268,49 @@
     const database = getDatabase(app);
     const dbRef = ref(database, 'hospitals_data');
 
-    // รายชื่อโรงพยาบาลเริ่มต้น (Master Data)
+    // 🔒 เพิ่มฟิลด์ pin (รหัสผ่าน) กำหนดไว้ที่นี่ (เบื้องต้นตั้งเป็น '1234' ไว้ให้ทดสอบทุก รพ. ครับ)
     let defaultHospitals = [
-        { id: 0, name: "รพ.สรรพสิทธิประสงค์ (สปส)", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 1, name: "รพ.อุบลรักษ์ ธนบุรี", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 2, name: "รพ.ราชเวช", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 3, name: "รพ.50พรรษา", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 4, name: "รพ.พริ้นซ์", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 5, name: "รพ.ม่วงสามสิบ", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 6, name: "รพ.เขื่องใน", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 7, name: "รพ.ดอนมดแดง", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 8, name: "รพ.ตระการพืชผล", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 9, name: "รพ.เขมราฐ", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 10, name: "รพ.โขงเจียม", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 11, name: "รพ.สำโรง", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 12, name: "รพ.วารินชำราบ", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 13, name: "รพ.ค่ายสรรพสิทธิ (สปส)", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 14, name: "รพ.ม.อุบลฯ", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 15, name: "รพ.พิบูลมังสาหาร", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 16, name: "รพ.สิรินธร", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 17, name: "รพ.ทุ่งศรีอุดม", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 18, name: "รพ.ตาลสุม", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 19, name: "รพ.เดชอุดม", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 20, name: "รพ.บุณฑริก", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 21, name: "รพ.นาจะหลวย", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 22, name: "รพ.นาตาล", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 23, name: "รพ.น้ำขุ่น", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 24, name: "รพ.กุดข้าวปุ้น", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 25, name: "รพ.ศรีเมืองใหม่", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 26, name: "รพ.น้ำยืน", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 27, name: "รพ.โพธิ์ไทร", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 28, name: "รพ.นาเยีย", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 29, name: "รพ.เหล่าเสือโก้ก", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 30, name: "รพ.สว่างวีระวงศ์", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 },
-        { id: 31, name: "รพ.เด็กสรรพสิทธิประสงค์ (สปส)", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0 }
+        { id: 0, name: "รพ.สรรพสิทธิประสงค์ (สปส)", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 1, name: "รพ.อุบลรักษ์ ธนบุรี", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 2, name: "รพ.ราชเวช", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 3, name: "รพ.50พรรษา", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 4, name: "รพ.พริ้นซ์", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 5, name: "รพ.ม่วงสามสิบ", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 6, name: "รพ.เขื่องใน", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 7, name: "รพ.ดอนมดแดง", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 8, name: "รพ.ตระการพืชผล", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 9, name: "รพ.เขมราฐ", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 10, name: "รพ.โขงเจียม", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 11, name: "รพ.สำโรง", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 12, name: "รพ.วารินชำราบ", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 13, name: "รพ.ค่ายสรรพสิทธิ (สปส)", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 14, name: "รพ.ม.อุบลฯ", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 15, name: "รพ.พิบูลมังสาหาร", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 16, name: "รพ.สิรินธร", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 17, name: "รพ.ทุ่งศรีอุดม", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 18, name: "รพ.ตาลสุม", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 19, name: "รพ.เดชอุดม", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 20, name: "รพ.บุณฑริก", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 21, name: "รพ.นาจะหลวย", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 22, name: "รพ.นาตาล", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 23, name: "รพ.น้ำขุ่น", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 24, name: "รพ.กุดข้าวปุ้น", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 25, name: "รพ.ศรีเมืองใหม่", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 26, name: "รพ.น้ำยืน", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 27, name: "รพ.โพธิ์ไทร", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 28, name: "รพ.นาเยีย", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 29, name: "รพ.เหล่าเสือโก้ก", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 30, name: "รพ.สว่างวีระวงศ์", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 31, name: "รพ.เด็กสรรพสิทธิประสงค์ (สปส)", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" }
     ];
 
     let hospitals = [...defaultHospitals];
 
-    // 📡 ดักฟังข้อมูล Realtime จาก Firebase (เครื่องอื่นเปลี่ยน หน้านี้เปลี่ยนตามทันที)
     onValue(dbRef, (snapshot) => {
         const cloudData = snapshot.val();
         if (cloudData) {
             hospitals = cloudData;
         } else {
-            // ถ้าฐานข้อมูลบน Cloud โล่งอยู่ ให้ดึงค่าเริ่มต้นขึ้นไปวางเปิดงานครั้งแรก
             set(dbRef, defaultHospitals);
             hospitals = [...defaultHospitals];
         }
@@ -496,30 +493,68 @@
         });
     }
 
-    // 🚀 ฟังก์ชันบันทึกข้อมูล ยิงข้อมูลขึ้น Firebase Cloud
+    // 🚀 ฟังก์ชันบันทึกข้อมูล + ตรวจสอบรหัสผ่านของโรงพยาบาลนั้นๆ
     window.save = function(id) {
-        updateLocalData(id);
         let h = hospitals.find(x => x.id === id);
-        const d = new Date();
-        
-        h.lastUpdate = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()+543} ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')} น.`;
-        h.timestamp = d.getTime(); 
-        
-        // 💾 บันทึกขึ้น Firebase Cloud (และเก็บ Local กันเหนียวไว้ด้วย)
-        set(dbRef, hospitals).then(() => {
-            localStorage.setItem('hospitalData', JSON.stringify(hospitals));
-            
-            let btn = document.getElementById(`btn-${id}`);
-            btn.classList.add('btn-pulse');
-            setTimeout(() => btn.classList.remove('btn-pulse'), 500);
-            
-            Swal.fire({ title: 'บันทึกข้อมูลสำเร็จ', icon: 'success', timer: 1500, showConfirmButton: false });
-            filterHospitals('save');
+        if (!h) return;
 
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }).catch((err) => {
-            console.error("Firebase Save Error: ", err);
-            Swal.fire({ title: 'บันทึกไม่สำเร็จ', text: 'โปรดตรวจสอบสิทธิ์อินเทอร์เน็ต', icon: 'error' });
+        // 💬 แสดงกล่องสี่เหลี่ยมให้เจ้าหน้าที่พิมพ์รหัสผ่านเพื่อยืนยันสิทธิ์
+        Swal.fire({
+            title: `ยืนยันสิทธิ์การบันทึก`,
+            text: `กรุณาใส่รหัสผ่านของ ${h.name}`,
+            input: 'password',
+            inputAttributes: {
+                autocapitalize: 'off',
+                autocorrect: 'off',
+                maxlength: 10,
+                placeholder: 'รหัสผ่าน 4 หลัก'
+            },
+            showCancelButton: true,
+            confirmButtonText: 'ยืนยัน',
+            cancelButtonText: 'ยกเลิก',
+            confirmButtonColor: '#2563eb',
+            customClass: {
+                input: 'no-print'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const enteredPin = result.value;
+                const correctPin = h.pin || "1234"; // ถ้ารายการไหนไม่มี pin ให้ใช้ค่าเริ่มต้น 1234
+
+                // 🛑 ถ้ารหัสผ่านไม่ถูกต้อง จะถูกเด้งออกทันที ข้อมูลไม่ถูกเซฟ
+                if (enteredPin !== correctPin) {
+                    Swal.fire({
+                        title: 'รหัสผ่านไม่ถูกต้อง!',
+                        text: 'คุณไม่มีสิทธิ์แก้ไขข้อมูลของโรงพยาบาลนี้',
+                        icon: 'error',
+                        confirmButtonColor: '#ef4444'
+                    });
+                    return;
+                }
+
+                // หากรหัสผ่านถูกต้อง ลุยกระบวนการเซฟข้อมูลขึ้น Firebase ทันที
+                updateLocalData(id);
+                const d = new Date();
+                
+                h.lastUpdate = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()+543} ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')} น.`;
+                h.timestamp = d.getTime(); 
+                
+                set(dbRef, hospitals).then(() => {
+                    localStorage.setItem('hospitalData', JSON.stringify(hospitals));
+                    
+                    let btn = document.getElementById(`btn-${id}`);
+                    btn.classList.add('btn-pulse');
+                    setTimeout(() => btn.classList.remove('btn-pulse'), 500);
+                    
+                    Swal.fire({ title: 'บันทึกข้อมูลสำเร็จ', icon: 'success', timer: 1500, showConfirmButton: false });
+                    filterHospitals('save');
+
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }).catch((err) => {
+                    console.error("Firebase Save Error: ", err);
+                    Swal.fire({ title: 'บันทึกไม่สำเร็จ', text: 'โปรดตรวจสอบสิทธิ์อินเทอร์เน็ต', icon: 'error' });
+                });
+            }
         });
     }
 
@@ -551,7 +586,6 @@
         }
 
         let filtered = hospitals.filter(h => h.name.toLowerCase().includes(val));
-        // จัดเรียงตามอัปเดตล่าสุดขึ้นก่อน
         filtered.sort((a, b) => b.timestamp - a.timestamp);
         render(filtered);
     }
@@ -562,18 +596,15 @@
         filterHospitals('clear');
     }
 
-    // ตรวจสอบไฟกะพริบทุกๆ 10 วินาที
     setInterval(() => {
         filterHospitals('interval');
     }, 10000);
 
-    // นาฬิกา Realtime บนแถบบาร์ด้านบน
     setInterval(() => {
         const d = new Date();
         document.getElementById('liveClock').innerHTML = `วันที่ ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()+543}<br>${d.toLocaleTimeString('th-TH')}`;
     }, 1000);
 
-    // ป้องกันการคลิกขวา และ f12 ตรวจสอบหน้าเว็บ
     document.addEventListener('contextmenu', e => e.preventDefault());
     document.addEventListener('keydown', e => {
         if (e.keyCode == 123 || (e.ctrlKey && (e.keyCode == 73 || e.keyCode == 85 || e.keyCode == 83))) e.preventDefault();
