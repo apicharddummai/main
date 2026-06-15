@@ -325,11 +325,15 @@
 
     let hospitals = [...defaultHospitals];
 
+   // 🚀 เอาตัวนี้ไปวางทับฟังก์ชัน onValue ตัวเดิมได้เลยครับ
     onValue(dbRef, (snapshot) => {
         const cloudData = snapshot.val();
-        if (cloudData) {
+        
+        // เช็กอย่างละเอียดว่ามีก้อนข้อมูลอยู่จริง และไม่เป็นค่า null
+        if (cloudData && Object.keys(cloudData).length > 0) {
             hospitals = cloudData;
         } else {
+            // ป้องกันแอปพัง: ถ้า Firebase เผลอส่งค่า null มา ให้ดึงค่าเริ่มต้นสแตนด์บายทันที
             set(dbRef, defaultHospitals);
             hospitals = [...defaultHospitals];
         }
