@@ -400,31 +400,7 @@
         }
     });
 	
-	// ฟังก์ชันเช็กเวลาทุกๆ 1 นาที ถ้าถึง 08:00 น. ให้สั่งรีเซ็ตเฉพาะ Stroke
-setInterval(() => {
-    const now = new Date();
-    // เช็กว่าเป็นเวลา 08:00 น. เป๊ะๆ หรือไม่
-    if (now.getHours() === 8 && now.getMinutes() === 0) {
-        resetStrokeData();
-    }
-}, 60000); // เช็กทุก 60 วินาที
-
-function resetStrokeData() {
-    // ดึงข้อมูลปัจจุบันจากฐานข้อมูล
-    const dbRef = ref(database, 'hospitals_data');
-    get(dbRef).then((snapshot) => {
-        let updates = {};
-        snapshot.forEach((childSnapshot) => {
-            let id = childSnapshot.key;
-            // สั่งอัปเดตเฉพาะค่า Stroke ให้เป็น 0 (เตียงยังอยู่เท่าเดิม)
-            updates[id + '/stroke_walkin'] = 0;
-            updates[id + '/stroke_ems'] = 0;
-            updates[id + '/strokeUpdate'] = "รีเซ็ตแล้วเมื่อ " + new Date().toLocaleDateString();
-        });
-        // ส่งค่า 0 ขึ้นไปอัปเดตที่ Firebase
-        update(ref(database, 'hospitals_data'), updates);
-    });
-}
+	
 	
 	
 	
