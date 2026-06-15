@@ -820,6 +820,44 @@
     document.addEventListener('keydown', e => {
         if (e.keyCode == 123 || (e.ctrlKey && (e.keyCode == 73 || e.keyCode == 85 || e.keyCode == 83))) e.preventDefault();
     });
+	
+	
+	// ฟังก์ชันสำหรับ Reset ค่า Stroke โดยเฉพาะ
+function resetStrokeAtEight() {
+    const dbRef = ref(database, 'hospitals_data'); // อ้างอิง Path ข้อมูลของคุณ
+    
+    get(dbRef).then((snapshot) => {
+        if (!snapshot.exists()) return;
+        
+        let updates = {};
+        snapshot.forEach((childSnapshot) => {
+            let id = childSnapshot.key;
+            // สั่ง Reset เฉพาะฟิลด์ Stroke เท่านั้น!
+            // ฟิลด์อื่นที่เป็นเตียง หรือชื่อ จะไม่ถูกแตะต้อง
+            updates[id + '/stroke_walkin'] = 0;
+            updates[id + '/stroke_ems'] = 0;
+            updates[id + '/strokeUpdate'] = "Reset เมื่อ " + new Date().toLocaleDateString('th-TH');
+        });
+        
+        // ส่งคำสั่งอัปเดตไปที่ Firebase
+        update(ref(database, 'hospitals_data'), updates).then(() => {
+            console.log("ระบบ Reset ค่า Stroke เป็น 0 เรียบร้อยแล้วที่เวลา 08.00 น.");
+        });
+    });
+}
+
+// ตั้งค่าให้มัน "เฝ้าดูนาฬิกา" ตลอดเวลา
+setInterval(() => {
+    const now = new Date();
+    // ถ้าเป็นเวลา 08:00 น. ให้สั่ง Reset
+    if (now.getHours() === 8 && now.getMinutes() === 0) {
+        resetStrokeAtEight();
+    }
+}, 60000); // เช็กทุก 1 นาที
+	
+	
+	
+	
 </script>
 
 </body>
