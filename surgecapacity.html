@@ -96,7 +96,7 @@
         .summary-btn { background: #10b981; color: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
         .summary-btn:hover { background: #059669; transform: translateY(-1px); }
 
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; max-width: 1200px; margin: auto; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; max-width: 1200px; margin: auto; }
         
         .card { 
             background: var(--card-bg); 
@@ -125,6 +125,19 @@
         
         .row { display: flex; align-items: center; justify-content: space-between; padding: 4px 0; font-size: 0.82em; min-height: 34px; }
         
+        /* สไตล์ส่วนหัวข้อกลุ่มพิเศษ */
+        .group-header {
+            font-size: 0.82em;
+            font-weight: 600;
+            color: #7c3aed;
+            background: #f5f3ff;
+            padding: 4px 8px;
+            border-radius: 6px;
+            margin-top: 6px;
+            margin-bottom: 2px;
+            border-left: 3px solid #8b5cf6;
+        }
+
         .bed-ctrl-group { display: flex; align-items: center; background: #f1f5f9; border-radius: 8px; padding: 1px; gap: 1px; border: 1px solid #e2e8f0; }
         
         .btn-action {
@@ -164,6 +177,7 @@
         .status-badge { font-weight: 500; font-size: 0.75em; margin-right: 4px; min-width: 35px; text-align: center; }
         .full { color: #ef4444; background: #fee2e2; padding: 1px 5px; border-radius: 5px; }
         .available { color: #10b981; background: #d1fae5; padding: 1px 5px; border-radius: 5px; }
+        .count-badge { color: #7c3aed; background: #ede9fe; padding: 1px 6px; border-radius: 5px; }
         
         .input-group { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
         .input-group input, .input-group textarea { 
@@ -178,7 +192,7 @@
             transition: all 0.2s;
         }
         .input-group input:focus, .input-group textarea:focus { outline: none; border-color: #cbd5e1; background: #fff; }
-        .input-group textarea { resize: vertical; min-height: 70px; } 
+        .input-group textarea { resize: vertical; min-height: 60px; } 
         
         .save-btn { 
             width: 100%; 
@@ -268,40 +282,40 @@
     const database = getDatabase(app);
     const dbRef = ref(database, 'hospitals_data');
 
-    // 🔒 เพิ่มฟิลด์ pin (รหัสผ่าน) กำหนดไว้ที่นี่ (เบื้องต้นตั้งเป็น '1234' ไว้ให้ทดสอบทุก รพ. ครับ)
-    let defaultHospitals = [
-        { id: 0, name: "รพ.สรรพสิทธิประสงค์ (สปส)", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "123456789" },
-        { id: 1, name: "รพ.อุบลรักษ์ ธนบุรี", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 2, name: "รพ.ราชเวช", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 3, name: "รพ.50พรรษา", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 4, name: "รพ.พริ้นซ์", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 5, name: "รพ.ม่วงสามสิบ", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 6, name: "รพ.เขื่องใน", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 7, name: "รพ.ดอนมดแดง", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 8, name: "รพ.ตระการพืชผล", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 9, name: "รพ.เขมราฐ", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 10, name: "รพ.โขงเจียม", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 11, name: "รพ.สำโรง", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 12, name: "รพ.วารินชำราบ", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 13, name: "รพ.ค่ายสรรพสิทธิ (สปส)", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 14, name: "รพ.ม.อุบลฯ", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 15, name: "รพ.พิบูลมังสาหาร", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 16, name: "รพ.สิรินธร", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 17, name: "รพ.ทุ่งศรีอุดม", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 18, name: "รพ.ตาลสุม", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 19, name: "รพ.เดชอุดม", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 20, name: "รพ.บุณฑริก", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 21, name: "รพ.นาจะหลวย", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 22, name: "รพ.นาตาล", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 23, name: "รพ.น้ำขุ่น", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 24, name: "รพ.กุดข้าวปุ้น", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 25, name: "รพ.ศรีเมืองใหม่", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 26, name: "รพ.น้ำยืน", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 27, name: "รพ.โพธิ์ไทร", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 28, name: "รพ.นาเยีย", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 29, name: "รพ.เหล่าเสือโก้ก", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 30, name: "รพ.สว่างวีระวงศ์", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
-        { id: 31, name: "รพ.เด็กสรรพสิทธิประสงค์ (สปส)", green: 0, yellow: 0, red: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" }
+    // 🔒 เพิ่มข้อมูลฟิลด์ stroke_walkin: 0 และ stroke_ems: 0 ลงในโครงสร้างฐานข้อมูลเริ่มต้น
+    const defaultHospitals = [
+        { id: 0, name: "รพ.สรรพสิทธิประสงค์ (สปส)", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "123456" },
+        { id: 1, name: "รพ.อุบลรักษ์ ธนบุรี", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 2, name: "รพ.ราชเวช", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 3, name: "รพ.50พรรษา", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 4, name: "รพ.พริ้นซ์", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 5, name: "รพ.ม่วงสามสิบ", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 6, name: "รพ.เขื่องใน", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 7, name: "รพ.ดอนมดแดง", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 8, name: "รพ.ตระการพืชผล", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 9, name: "รพ.เขมราฐ", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 10, name: "รพ.โขงเจียม", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 11, name: "รพ.สำโรง", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 12, name: "รพ.วารินชำราบ", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 13, name: "รพ.ค่ายสรรพสิทธิ (สปส)", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 14, name: "รพ.ม.อุบลฯ", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 15, name: "รพ.พิบูลมังสาหาร", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 16, name: "รพ.สิรินธร", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 17, name: "รพ.ทุ่งศรีอุดม", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 18, name: "รพ.ตาลสุม", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 19, name: "รพ.เดชอุดม", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 20, name: "รพ.บุณฑริก", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 21, name: "รพ.นาจะหลวย", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 22, name: "รพ.นาตาล", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 23, name: "รพ.น้ำขุ่น", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 24, name: "รพ.กุดข้าวปุ้น", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 25, name: "รพ.ศรีเมืองใหม่", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 26, name: "รพ.น้ำยืน", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 27, name: "รพ.โพธิ์ไทร", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 28, name: "รพ.นาเยีย", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 29, name: "รพ.เหล่าเสือโก้ก", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 30, name: "รพ.สว่างวีระวงศ์", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" },
+        { id: 31, name: "รพ.เด็กสรรพสิทธิประสงค์ (สปส)", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", timestamp: 0, pin: "1234" }
     ];
 
     let hospitals = [...defaultHospitals];
@@ -331,6 +345,7 @@
         filterHospitals('dropdown');
     }
 
+    // 📊 ฟังก์ชันเปิดดูสรุปรายงาน (เพิ่มช่องตาราง Stroke Fast Track แยก Walk in / EMS)
     window.showSummary = function() {
         const now = new Date();
         const timeStr = `ข้อมูล ณ วันที่ ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()+543} เวลา ${now.toLocaleTimeString('th-TH')}`;
@@ -352,12 +367,18 @@
                 <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align:center; font-weight:bold; font-family:'Prompt'; color:${h.red === 0 ? '#ef4444' : '#10b981'}">
                     ${h.red === 0 ? 'เต็ม' : 'ว่าง '+h.red}
                 </td>
+                <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align:center; font-family:'Prompt'; background-color:#f5f3ff;">
+                    <span style="color:#7c3aed; font-weight:bold;">${h.stroke_walkin || 0}</span> คน
+                </td>
+                <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align:center; font-family:'Prompt'; background-color:#f5f3ff;">
+                    <span style="color:#2563eb; font-weight:bold;">${h.stroke_ems || 0}</span> คน
+                </td>
             </tr>
         `).join('');
 
         Swal.fire({
-            title: 'สรุปสถานการณ์เตียงล่าสุด',
-            width: 850,
+            title: 'สรุปสถานการณ์เตียงและเคส Stroke ล่าสุด',
+            width: 950,
             showCloseButton: true,
             showConfirmButton: false,
             html: `
@@ -365,10 +386,16 @@
                 <table style="width:100%; border-collapse: collapse; font-size: 0.88em; color: #000;">
                     <thead>
                         <tr style="background:#f1f5f9;">
-                            <th style="padding: 12px 10px; text-align: left; font-family:'Prompt'; color:#334155;">โรงพยาบาล</th>
-                            <th style="padding: 12px 10px; text-align:center; font-family:'Prompt'; color:#334155;">ผู้ป่วยทั่วไป</th>
-                            <th style="padding: 12px 10px; text-align:center; font-family:'Prompt'; color:#334155;">ผู้ป่วยฉุกเฉิน</th>
-                            <th style="padding: 12px 10px; text-align:center; font-family:'Prompt'; color:#334155;">ผู้ป่วยวิกฤต</th>
+                            <th rowspan="2" style="padding: 12px 10px; text-align: left; font-family:'Prompt'; color:#334155; border-bottom:2px solid #cbd5e1;">โรงพยาบาล</th>
+                            <th colspan="3" style="padding: 6px 10px; text-align:center; font-family:'Prompt'; color:#334155; border-bottom:1px solid #cbd5e1;">สถานะเตียงควบคุม</th>
+                            <th colspan="2" style="padding: 6px 10px; text-align:center; font-family:'Prompt'; color:#7c3aed; background-color:#f5f3ff; border-bottom:1px solid #ddd;">Stroke Fast Track</th>
+                        </tr>
+                        <tr style="background:#f1f5f9;">
+                            <th style="padding: 6px 5px; text-align:center; font-family:'Prompt'; font-size:0.9em; color:#059669;">ทั่วไป</th>
+                            <th style="padding: 6px 5px; text-align:center; font-family:'Prompt'; font-size:0.9em; color:#d97706;">ฉุกเฉิน</th>
+                            <th style="padding: 6px 5px; text-align:center; font-family:'Prompt'; font-size:0.9em; color:#dc2626;">วิกฤต</th>
+                            <th style="padding: 6px 5px; text-align:center; font-family:'Prompt'; font-size:0.9em; color:#7c3aed; background-color:#f5f3ff;">1. Walk in</th>
+                            <th style="padding: 6px 5px; text-align:center; font-family:'Prompt'; font-size:0.9em; color:#2563eb; background-color:#f5f3ff;">2. EMS</th>
                         </tr>
                     </thead>
                     <tbody>${tableRows}</tbody>
@@ -389,6 +416,10 @@
             h.green = Math.max(0, parseInt(document.getElementById(`green-${id}`).value) || 0);
             h.yellow = Math.max(0, parseInt(document.getElementById(`yellow-${id}`).value) || 0);
             h.red = Math.max(0, parseInt(document.getElementById(`red-${id}`).value) || 0);
+            
+            // ดึงค่าบันทึกจากช่อง Stroke Fast Track เพิ่มเติม
+            h.stroke_walkin = Math.max(0, parseInt(document.getElementById(`stroke_walkin-${id}`).value) || 0);
+            h.stroke_ems = Math.max(0, parseInt(document.getElementById(`stroke_ems-${id}`).value) || 0);
         }
     }
 
@@ -401,17 +432,23 @@
             
             let badgeEl = document.getElementById(`badge-${type}-${id}`);
             if(badgeEl) {
-                if (newVal === 0) {
-                    badgeEl.className = "status-badge full";
-                    badgeEl.textContent = "เต็ม";
+                // แยกเงื่อนไขการแสดงสลากข้อความระหว่างเตียงกับจำนวนคนไข้ Stroke
+                if(type.startsWith('stroke_')) {
+                    badgeEl.textContent = newVal + " คน";
                 } else {
-                    badgeEl.className = "status-badge available";
-                    badgeEl.textContent = "ว่าง";
+                    if (newVal === 0) {
+                        badgeEl.className = "status-badge full";
+                        badgeEl.textContent = "เต็ม";
+                    } else {
+                        badgeEl.className = "status-badge available";
+                        badgeEl.textContent = "ว่าง";
+                    }
                 }
             }
         }
     }
 
+    // 🚀 เรนเดอร์การ์ดแสดงผลบนหน้าจอ (เพิ่ม UI ส่วนของ Stroke Fast Track บนล่างชัดเจน)
     function render(data) {
         const currentTime = new Date().getTime();
         const oneMinuteInMs = 1 * 60 * 1000;
@@ -466,6 +503,32 @@
                         </div>
                     </div>
 
+                    <div class="group-header">🧠 Stroke Fast Track</div>
+                    
+                    <div class="row">
+                        <span style="padding-left:6px; color:#555;">1. Walk in</span>
+                        <div style="display: flex; align-items: center;">
+                            <span id="badge-stroke_walkin-${h.id}" class="status-badge count-badge">${h.stroke_walkin || 0} คน</span>
+                            <div class="bed-ctrl-group">
+                                <button class="btn-action btn-minus" onclick="stepChange(${h.id}, 'stroke_walkin', -1)">−</button>
+                                <input type="number" id="stroke_walkin-${h.id}" class="bed-input" min="0" value="${h.stroke_walkin || 0}">
+                                <button class="btn-action btn-plus-item" onclick="stepChange(${h.id}, 'stroke_walkin', 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <span style="padding-left:6px; color:#555;">2. EMS</span>
+                        <div style="display: flex; align-items: center;">
+                            <span id="badge-stroke_ems-${h.id}" class="status-badge count-badge">${h.stroke_ems || 0} คน</span>
+                            <div class="bed-ctrl-group">
+                                <button class="btn-action btn-minus" onclick="stepChange(${h.id}, 'stroke_ems', -1)">−</button>
+                                <input type="number" id="stroke_ems-${h.id}" class="bed-input" min="0" value="${h.stroke_ems || 0}">
+                                <button class="btn-action btn-plus-item" onclick="stepChange(${h.id}, 'stroke_ems', 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="input-group">
                         <input type="text" id="rep-${h.id}" placeholder="👤 ชื่อผู้รายงาน" value="${h.reporter || ''}">
                         <input type="tel" id="tel-${h.id}" placeholder="📞 เบอร์ติดต่อ" value="${h.phone || ''}">
@@ -476,16 +539,21 @@
             `;
         }).join('');
         
+        // ผูก Event Listener ป้องกันการพิมพ์ค่าติดลบของทุกฟิลด์ตัวเลข
         data.forEach(h => {
-            ['green', 'yellow', 'red'].forEach(type => {
+            ['green', 'yellow', 'red', 'stroke_walkin', 'stroke_ems'].forEach(type => {
                 let inputEl = document.getElementById(`${type}-${h.id}`);
                 if(inputEl) {
                     inputEl.addEventListener('input', (e) => {
-                        let val = parseInt(e.target.value) || 0;
+                        let val = Math.max(0, parseInt(e.target.value) || 0);
                         let badgeEl = document.getElementById(`badge-${type}-${h.id}`);
                         if(badgeEl) {
-                            badgeEl.className = val === 0 ? "status-badge full" : "status-badge available";
-                            badgeEl.textContent = val === 0 ? "เต็ม" : "ว่าง";
+                            if(type.startsWith('stroke_')) {
+                                badgeEl.textContent = val + " คน";
+                            } else {
+                                badgeEl.className = val === 0 ? "status-badge full" : "status-badge available";
+                                badgeEl.textContent = val === 0 ? "เต็ม" : "ว่าง";
+                            }
                         }
                     });
                 }
@@ -493,12 +561,10 @@
         });
     }
 
-    // 🚀 ฟังก์ชันบันทึกข้อมูล + ตรวจสอบรหัสผ่านของโรงพยาบาลนั้นๆ
     window.save = function(id) {
         let h = hospitals.find(x => x.id === id);
         if (!h) return;
 
-        // 💬 แสดงกล่องสี่เหลี่ยมให้เจ้าหน้าที่พิมพ์รหัสผ่านเพื่อยืนยันสิทธิ์
         Swal.fire({
             title: `ยืนยันสิทธิ์การบันทึก`,
             text: `กรุณาใส่รหัสผ่านของ ${h.name}`,
@@ -519,9 +585,8 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 const enteredPin = result.value;
-                const correctPin = h.pin || "1234"; // ถ้ารายการไหนไม่มี pin ให้ใช้ค่าเริ่มต้น 1234
+                const correctPin = h.pin || "1234";
 
-                // 🛑 ถ้ารหัสผ่านไม่ถูกต้อง จะถูกเด้งออกทันที ข้อมูลไม่ถูกเซฟ
                 if (enteredPin !== correctPin) {
                     Swal.fire({
                         title: 'รหัสผ่านไม่ถูกต้อง!',
@@ -532,7 +597,6 @@
                     return;
                 }
 
-                // หากรหัสผ่านถูกต้อง ลุยกระบวนการเซฟข้อมูลขึ้น Firebase ทันที
                 updateLocalData(id);
                 const d = new Date();
                 
@@ -572,6 +636,8 @@
                 let greenEl = document.getElementById(`green-${h.id}`);
                 let yellowEl = document.getElementById(`yellow-${h.id}`);
                 let redEl = document.getElementById(`red-${h.id}`);
+                let walkinEl = document.getElementById(`stroke_walkin-${h.id}`);
+                let emsEl = document.getElementById(`stroke_ems-${h.id}`);
                 let repEl = document.getElementById(`rep-${h.id}`);
                 let telEl = document.getElementById(`tel-${h.id}`);
                 let noteEl = document.getElementById(`note-${h.id}`);
@@ -579,6 +645,8 @@
                 if (greenEl) h.green = Math.max(0, parseInt(greenEl.value) || 0);
                 if (yellowEl) h.yellow = Math.max(0, parseInt(yellowEl.value) || 0);
                 if (redEl) h.red = Math.max(0, parseInt(redEl.value) || 0);
+                if (walkinEl) h.stroke_walkin = Math.max(0, parseInt(walkinEl.value) || 0);
+                if (emsEl) h.stroke_ems = Math.max(0, parseInt(emsEl.value) || 0);
                 if (repEl) h.reporter = repEl.value;
                 if (telEl) h.phone = telEl.value;
                 if (noteEl) h.note = noteEl.value;
