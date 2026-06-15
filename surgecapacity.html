@@ -73,7 +73,47 @@
             border: 1px solid #bfdbfe;
         }
 
-        .search-section { max-width: 800px; margin: 0 auto 15px auto; display: flex; gap: 6px; flex-wrap: wrap; }
+        /* Login Box Styles */
+        .login-container {
+            max-width: 400px;
+            margin: 40px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+        .login-title { font-size: 1.1em; font-weight: 600; color: #1e3a8a; margin-bottom: 15px; }
+        .login-btn {
+            width: 100%;
+            padding: 10px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Prompt';
+            font-size: 0.9em;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+        .login-btn:hover { background: #1d4ed8; }
+        .logout-btn {
+            padding: 8px 14px;
+            background: #64748b;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Prompt';
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .logout-btn:hover { background: #475569; }
+
+        .search-section { max-width: 800px; margin: 0 auto 15px auto; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
         .search-box, .search-select { 
             flex: 1; 
             min-width: 130px; 
@@ -256,16 +296,29 @@
     <div class="live-clock" id="liveClock"></div>
 </div>
 
-<div class="search-section">
-    <select id="hospitalDropdown" class="search-select" onchange="selectHospitalDropdown()">
-        <option value="">-- เลือกโรงพยาบาล --</option>
+<div id="loginSection" class="login-container">
+    <div class="login-title">🔒 กรุณาเลือกหน่วยงานเพื่อเข้าสู่ระบบ</div>
+    <select id="loginHospitalDropdown" class="search-select" style="width:100%; margin-bottom:10px;">
+        <option value="">-- เลือกหน่วยงาน/โรงพยาบาล --</option>
+        <option value="1669">ศูนย์รับแจ้งเหตุและสั่งการ 1669 (แอดมิน)</option>
     </select>
-    <input type="text" id="searchInput" class="search-box" placeholder="🔍 หรือพิมพ์ค้นหาเอง..." oninput="filterHospitals('input')">
-    <button id="summaryBtn" class="summary-btn" onclick="showSummary()">📊 สรุปรายงาน</button>
-    <button id="clearBtn" class="clear-btn" onclick="clearSearch()">ย้อนกลับ</button>
+    <input type="password" id="loginPinInput" class="search-box" style="width:100%; box-sizing:border-box; margin-bottom:10px;" placeholder="กรอกรหัสผ่าน (Password)">
+    <button class="login-btn" onclick="handleLogin()">เข้าสู่ระบบ</button>
 </div>
 
-<div id="app" class="grid-container"></div>
+<div id="mainSystemSection" style="display: none;">
+    <div class="search-section">
+        <select id="hospitalDropdown" class="search-select" onchange="selectHospitalDropdown()">
+            <option value="">-- เลือกโรงพยาบาล --</option>
+        </select>
+        <input type="text" id="searchInput" class="search-box" placeholder="🔍 หรือพิมพ์ค้นหาเอง..." oninput="filterHospitals('input')">
+        <button id="summaryBtn" class="summary-btn" onclick="showSummary()">📊 สรุปรายงาน</button>
+        <button id="clearBtn" class="clear-btn" onclick="clearSearch()">ย้อนกลับ</button>
+        <button class="logout-btn" onclick="handleLogout()">ออกจากระบบ 🚪</button>
+    </div>
+
+    <div id="app" class="grid-container"></div>
+</div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -298,7 +351,7 @@
         { id: 6, name: "รพ.เขื่องใน", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", strokeUpdate: "-", timestamp: 0, strokeTimestamp: 0, pin: "1234" },
         { id: 7, name: "รพ.ดอนมดแดง", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", strokeUpdate: "-", timestamp: 0, strokeTimestamp: 0, pin: "1234" },
         { id: 8, name: "รพ.ตระการพืชผล", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", strokeUpdate: "-", timestamp: 0, strokeTimestamp: 0, pin: "1234" },
-        { id: 9, name: "รพ.เขมราฐ", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", strokeUpdate: "-", timestamp: 0, strokeTimestamp: 0, pin: "1234" },
+        { id: 9, name: "รพ.เขemราฐ", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", strokeUpdate: "-", timestamp: 0, strokeTimestamp: 0, pin: "1234" },
         { id: 10, name: "รพ.โขงเจียม", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", strokeUpdate: "-", timestamp: 0, strokeTimestamp: 0, pin: "1234" },
         { id: 11, name: "รพ.สำโรง", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", strokeUpdate: "-", timestamp: 0, strokeTimestamp: 0, pin: "1234" },
         { id: 12, name: "รพ.วารินชำราบ", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", strokeUpdate: "-", timestamp: 0, strokeTimestamp: 0, pin: "1234" },
@@ -323,29 +376,93 @@
         { id: 31, name: "รพ.เด็กสรรพสิทธิประสงค์ (สปส)", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", strokeUpdate: "-", timestamp: 0, strokeTimestamp: 0, pin: "1234" }
     ];
 
-    let hospitals = [...defaultHospitals];
+    let hospitals = [];
+    let currentUserRole = ""; // เก็บว่าคนที่ล็อกอินอยู่เป็นใคร ("1669" หรือ "ชื่อโรงพยาบาล")
 
-   // 🚀 เอาตัวนี้ไปวางทับฟังก์ชัน onValue ตัวเดิมได้เลยครับ
     onValue(dbRef, (snapshot) => {
         const cloudData = snapshot.val();
-        
-        // เช็กอย่างละเอียดว่ามีก้อนข้อมูลอยู่จริง และไม่เป็นค่า null
         if (cloudData && Object.keys(cloudData).length > 0) {
             hospitals = cloudData;
         } else {
-            // ป้องกันแอปพัง: ถ้า Firebase เผลอส่งค่า null มา ให้ดึงค่าเริ่มต้นสแตนด์บายทันที
             set(dbRef, defaultHospitals);
             hospitals = [...defaultHospitals];
         }
+        initLoginDropdown();
         initDropdown();
-        filterHospitals('sync');
+        
+        // เช็กสถานะล็อกอินเดิมจาก SessionStorage
+        const savedRole = sessionStorage.getItem('userRole');
+        if (savedRole) {
+            currentUserRole = savedRole;
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('mainSystemSection').style.display = 'block';
+            filterHospitals('sync');
+        }
     });
+
+    function initLoginDropdown() {
+        const loginDropdown = document.getElementById('loginHospitalDropdown');
+        let sortedForDropdown = [...hospitals].sort((a, b) => a.name.localeCompare(b.name, 'th'));
+        
+        loginDropdown.innerHTML = '<option value="">-- เลือกหน่วยงาน/โรงพยาบาล --</option>' + 
+            '<option value="1669">ศูนย์รับแจ้งเหตุและสั่งการ 1669 (ADMIN)</option>' +
+            sortedForDropdown.map(h => `<option value="${h.name}">${h.name}</option>`).join('');
+    }
 
     function initDropdown() {
         const dropdown = document.getElementById('hospitalDropdown');
         let sortedForDropdown = [...hospitals].sort((a, b) => a.name.localeCompare(b.name, 'th'));
         dropdown.innerHTML = '<option value="">-- เลือกโรงพยาบาล --</option>' + 
             sortedForDropdown.map(h => `<option value="${h.name}">${h.name}</option>`).join('');
+    }
+
+    window.handleLogin = function() {
+        const targetHospital = document.getElementById('loginHospitalDropdown').value;
+        const enteredPin = document.getElementById('loginPinInput').value;
+
+        if (!targetHospital) {
+            Swal.fire('กรุณาเลือกหน่วยงาน', '', 'warning');
+            return;
+        }
+        if (!enteredPin) {
+            Swal.fire('กรุณากรอกรหัสผ่าน', '', 'warning');
+            return;
+        }
+
+        if (targetHospital === "1669") {
+            // ตั้งรหัสผ่านสำหรับแอดมิน 1669 ตรงนี้
+            if (enteredPin === "AdminEMS@2026") {
+                currentUserRole = "1669";
+                sessionStorage.setItem('userRole', '1669');
+                loginSuccess();
+            } else {
+                Swal.fire('รหัสผ่านแอดมินไม่ถูกต้อง!', '', 'error');
+            }
+        } else {
+            let h = hospitals.find(x => x.name === targetHospital);
+            if (h && enteredPin === (h.pin || "1234")) {
+                currentUserRole = h.name;
+                sessionStorage.setItem('userRole', h.name);
+                loginSuccess();
+            } else {
+                Swal.fire('รหัสผ่านไม่ถูกต้อง!', 'โปรดลองอีกครั้งหรือติดต่อแอดมิน', 'error');
+            }
+        }
+    }
+
+    function loginSuccess() {
+        Swal.fire({ title: 'เข้าสู่ระบบสำเร็จ', icon: 'success', timer: 1000, showConfirmButton: false });
+        document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('mainSystemSection').style.display = 'block';
+        document.getElementById('loginPinInput').value = '';
+        filterHospitals('login');
+    }
+
+    window.handleLogout = function() {
+        sessionStorage.clear();
+        currentUserRole = "";
+        document.getElementById('mainSystemSection').style.display = 'none';
+        document.getElementById('loginSection').style.display = 'block';
     }
 
     window.selectHospitalDropdown = function() {
@@ -606,63 +723,25 @@
     }
 
     window.save = function(id) {
-        let h = hospitals.find(x => x.id === id);
-        if (!h) return;
-
-        Swal.fire({
-            title: `ยืนยันสิทธิ์การบันทึก`,
-            text: `กรุณาใส่รหัสผ่านของ ${h.name}`,
-            input: 'password',
-            inputAttributes: {
-                autocapitalize: 'off',
-                autocorrect: 'off',
-                maxlength: 10,
-                placeholder: 'รหัสผ่าน'
-            },
-            showCancelButton: true,
-            confirmButtonText: 'ยืนยัน',
-            cancelButtonText: 'ยกเลิก',
-            confirmButtonColor: '#2563eb',
-            customClass: {
-                input: 'no-print'
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                const enteredPin = result.value;
-                const correctPin = h.pin || "1234";
-
-                if (enteredPin !== correctPin) {
-                    Swal.fire({
-                        title: 'รหัสผ่านไม่ถูกต้อง!',
-                        text: 'คุณไม่มีสิทธิ์แก้ไขข้อมูลของโรงพยาบาลนี้',
-                        icon: 'error',
-                        confirmButtonColor: '#ef4444'
-                    });
-                    return;
-                }
-
-                updateLocalData(id);
-                
-                set(dbRef, hospitals).then(() => {
-                    localStorage.setItem('hospitalData', JSON.stringify(hospitals));
-                    
-                    let btn = document.getElementById(`btn-${id}`);
-                    btn.classList.add('btn-pulse');
-                    setTimeout(() => btn.classList.remove('btn-pulse'), 500);
-                    
-                    Swal.fire({ title: 'บันทึกข้อมูลสำเร็จ', icon: 'success', timer: 1500, showConfirmButton: false });
-                    filterHospitals('save');
-
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }).catch((err) => {
-                    console.error("Firebase Save Error: ", err);
-                    Swal.fire({ title: 'บันทึกไม่สำเร็จ', text: 'โปรดตรวจสอบสิทธิ์อินเทอร์เน็ต', icon: 'error' });
-                });
-            }
+        updateLocalData(id);
+        
+        set(dbRef, hospitals).then(() => {
+            let btn = document.getElementById(`btn-${id}`);
+            btn.classList.add('btn-pulse');
+            setTimeout(() => btn.classList.remove('btn-pulse'), 500);
+            
+            Swal.fire({ title: 'บันทึกข้อมูลสำเร็จ', icon: 'success', timer: 1500, showConfirmButton: false });
+            filterHospitals('save');
+        }).catch((err) => {
+            console.error("Firebase Save Error: ", err);
+            Swal.fire({ title: 'บันทึกไม่สำเร็จ', text: 'โปรดตรวจสอบสิทธิ์อินเทอร์เน็ต', icon: 'error' });
         });
     }
 
     window.filterHospitals = function(source) {
+        // หากไม่มีบทบาทผู้ใช้ ให้ระบบหยุดทำงาน
+        if (!currentUserRole) return;
+
         let val = document.getElementById('searchInput').value.toLowerCase();
         document.getElementById('clearBtn').style.display = val ? 'block' : 'none';
         
@@ -670,8 +749,9 @@
             document.getElementById('hospitalDropdown').value = '';
         }
 
+        // เก็บข้อมูลจากฟิลด์อินพุตปัจจุบันลงตัวแปรชั่วคราว
         let activeElements = document.querySelectorAll('.card');
-        if (activeElements.length > 0 && source !== 'sync') {
+        if (activeElements.length > 0 && source !== 'sync' && source !== 'login') {
             hospitals.forEach(h => {
                 let greenEl = document.getElementById(`green-${h.id}`);
                 let yellowEl = document.getElementById(`yellow-${h.id}`);
@@ -693,8 +773,25 @@
             });
         }
 
-        let filtered = hospitals.filter(h => h.name.toLowerCase().includes(val));
-        filtered.sort((a, b) => b.timestamp - a.timestamp);
+        let filtered = [];
+
+        if (currentUserRole === "1669") {
+            // สิทธิ์แอดมิน 1669: เห็นทุก รพ. และกรองตามคำค้นหาได้
+            document.getElementById('summaryBtn').style.display = 'inline-block';
+            document.getElementById('hospitalDropdown').style.display = 'inline-block';
+            document.getElementById('searchInput').style.display = 'inline-block';
+            
+            filtered = hospitals.filter(h => h.name.toLowerCase().includes(val));
+            filtered.sort((a, b) => b.timestamp - a.timestamp);
+        } else {
+            // สิทธิ์โรงพยาบาลทั่วไป: ล็อกผลลัพธ์ให้เห็นเฉพาะชื่อ รพ. ตัวเอง 1 ใบเท่านั้น
+            document.getElementById('summaryBtn').style.display = 'none'; // ซ่อนสรุปรายงานไม่ให้ รพ. อื่นเห็น
+            document.getElementById('hospitalDropdown').style.display = 'none'; // ซ่อนตัวกรอง
+            document.getElementById('searchInput').style.display = 'none'; // ซ่อนกล่องค้นหา
+            
+            filtered = hospitals.filter(h => h.name === currentUserRole);
+        }
+
         render(filtered);
     }
 
@@ -705,7 +802,7 @@
     }
 
     setInterval(() => {
-        filterHospitals('interval');
+        if(currentUserRole) filterHospitals('interval');
     }, 10000);
 
     setInterval(() => {
