@@ -379,48 +379,28 @@
     let hospitals = [];
     let currentUserRole = ""; // เก็บว่าคนที่ล็อกอินอยู่เป็นใคร ("1669" หรือ "ชื่อโรงพยาบาล")
 
-    // แก้ตรงนี้: ให้เป็นแค่การแสดงผลเท่านั้น
-onValue(dbRef, (snapshot) => {
-    const data = snapshot.val();
-    if (!data) return;
-
-    // วนลูปเพื่อเอาค่ามาใส่ในช่อง input โดยไม่ส่งค่ากลับ Firebase
-    Object.keys(data).forEach(id => {
-        const hospital = data[id];
-        const walkinInput = document.getElementById(`stroke_walkin-${id}`);
-        const emsInput = document.getElementById(`stroke_ems-${id}`);
-
-        // แค่เปลี่ยนตัวเลขหน้าจอ (value) ไม่ต้องสั่งบันทึก
-        if(walkinInput) walkinInput.value = hospital.stroke_walkin || 0;
-        if(emsInput) emsInput.value = hospital.stroke_ems || 0;
+    onValue(dbRef, (snapshot) => {
+        const cloudData = snapshot.val();
+        if (cloudData && Object.keys(cloudData).length > 0) {
+            hospitals = cloudData;
+        } else {
+            set(dbRef, defaultHospitals);
+            hospitals = [...defaultHospitals];
+        }
+        initLoginDropdown();
+        initDropdown();
+        
+        // เช็กสถานะล็อกอินเดิมจาก SessionStorage
+        const savedRole = sessionStorage.getItem('userRole');
+        if (savedRole) {
+            currentUserRole = savedRole;
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('mainSystemSection').style.display = 'block';
+            filterHospitals('sync');
+        }
     });
-});
 	
-	// ฟังก์ชันเช็กเวลาทุกๆ 1 นาที ถ้าถึง 08:00 น. ให้สั่งรีเซ็ตเฉพาะ Stroke
-setInterval(() => {
-    const now = new Date();
-    // เช็กว่าเป็นเวลา 08:00 น. เป๊ะๆ หรือไม่
-    if (now.getHours() === 8 && now.getMinutes() === 0) {
-        resetStrokeData();
-    }
-}, 60000); // เช็กทุก 60 วินาที
-
-function resetStrokeData() {
-    // ดึงข้อมูลปัจจุบันจากฐานข้อมูล
-    const dbRef = ref(database, 'hospitals_data');
-    get(dbRef).then((snapshot) => {
-        let updates = {};
-        snapshot.forEach((childSnapshot) => {
-            let id = childSnapshot.key;
-            // สั่งอัปเดตเฉพาะค่า Stroke ให้เป็น 0 (เตียงยังอยู่เท่าเดิม)
-            updates[id + '/stroke_walkin'] = 0;
-            updates[id + '/stroke_ems'] = 0;
-            updates[id + '/strokeUpdate'] = "รีเซ็ตแล้วเมื่อ " + new Date().toLocaleDateString();
-        });
-        // ส่งค่า 0 ขึ้นไปอัปเดตที่ Firebase
-        update(ref(database, 'hospitals_data'), updates);
-    });
-}
+	
 	
 	
 	
