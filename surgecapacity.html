@@ -775,7 +775,9 @@ push(ref(database, 'stroke_history'), {
     hospital: h.name,
     walkin: h.stroke_walkin || 0,
     ems: h.stroke_ems || 0,
-    timestamp: Date.now()
+	total: Number(h.stroke_walkin || 0) + Number(h.stroke_ems || 0),
+    timestamp: Date.now(),
+	dateText: new Date().toLocaleString('th-TH')
 });
         set(dbRef, hospitals).then(() => {
             let btn = document.getElementById(`btn-${id}`);
