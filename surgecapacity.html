@@ -768,29 +768,36 @@ setInterval(resetStrokeDataAt0800, 5000);
     }
 
     window.save = function(id) {
-        updateLocalData(id);
-        const h = hospitals.find(x => x.id === id);
+    updateLocalData(id); // ตรวจสอบว่าฟังก์ชันนี้ดึงค่าจาก Input มาเซตเป็นค่าปัจจุบันจริงๆ ไม่ใช่การ +=
+    const h = hospitals.find(x => x.id === id);
 
-push(ref(database, 'stroke_history'), {
-    hospital: h.name,
-    walkin: h.stroke_walkin || 0,
-    ems: h.stroke_ems || 0,
-	total: Number(h.stroke_walkin || 0) + Number(h.stroke_ems || 0),
-    timestamp: Date.now(),
-	dateText: new Date().toLocaleString('th-TH')
-});
-        set(dbRef, hospitals).then(() => {
+    // 1. บันทึกข้อมูลสรุปหลัก (หน้า Dashboard)
+    set(dbRef, hospitals)
+        .then(() => {
+            // 2. บันทึก Log ประวัติ (ทำเฉพาะเมื่อบันทึกหลักสำเร็จ)
+            return push(ref(database, 'stroke_history'), {
+                hospital: h.name,
+                walkin: h.stroke_walkin || 0,
+                ems: h.stroke_ems || 0,
+                total: Number(h.stroke_walkin || 0) + Number(h.stroke_ems || 0),
+                timestamp: Date.now(),
+                dateText: new Date().toLocaleString('th-TH')
+            });
+        })
+        .then(() => {
+            // 3. แสดงผลความสำเร็จ
             let btn = document.getElementById(`btn-${id}`);
             btn.classList.add('btn-pulse');
             setTimeout(() => btn.classList.remove('btn-pulse'), 500);
             
-            Swal.fire({ title: 'บันทึกข้อมูลสำเร็จ', icon: 'success', timer: 1500, showConfirmButton: false });
+            Swal.fire({ title: 'บันทึกสำเร็จ', icon: 'success', timer: 1500, showConfirmButton: false });
             filterHospitals('save');
-        }).catch((err) => {
+        })
+        .catch((err) => {
             console.error("Firebase Save Error: ", err);
-            Swal.fire({ title: 'บันทึกไม่สำเร็จ', text: 'โปรดตรวจสอบสิทธิ์อินเทอร์เน็ต', icon: 'error' });
+            Swal.fire({ title: 'บันทึกไม่สำเร็จ', text: 'โปรดตรวจสอบการเชื่อมต่อ', icon: 'error' });
         });
-    }
+}
 
     window.filterHospitals = function(source) {
         // หากไม่มีบทบาทผู้ใช้ ให้ระบบหยุดทำงาน
