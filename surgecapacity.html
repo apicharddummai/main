@@ -313,8 +313,11 @@
         </select>
         <input type="text" id="searchInput" class="search-box" placeholder="🔍 หรือพิมพ์ค้นหาเอง..." oninput="filterHospitals('input')">
         <button id="summaryBtn" class="summary-btn" onclick="showSummary()">📊 สรุปรายงาน</button>
-	<button onclick="localStorage.setItem('userLoggedIn', 'true'); window.location.href='https://apicharddummai.github.io/main/history.html';">
-    📜 ประวัติข้อมูล
+	<button id="historyBtn"
+        class="summary-btn"
+        style="background:#6366f1; display:none;"
+        onclick="window.location.href='history.html'">
+📜 ประวัติข้อมูล
 </button>
         <button id="clearBtn" class="clear-btn" onclick="clearSearch()">ย้อนกลับ</button>
         <button class="logout-btn" onclick="handleLogout()">ออกจากระบบ 🚪</button>
@@ -485,11 +488,6 @@ setInterval(resetStrokeDataAt0800, 5000);
             if (h && enteredPin === (h.pin || "1234")) {
                 currentUserRole = h.name;
                 sessionStorage.setItem('userRole', h.name);
-				
-			// --- เพิ่มบรรทัดนี้ไว้ก่อนย้ายหน้า ---
-            localStorage.setItem("userLoggedIn", "true"); 
-            // ----------------------------------
-			
                 loginSuccess();
             } else {
                 Swal.fire('รหัสผ่านไม่ถูกต้อง!', 'โปรดลองอีกครั้งหรือติดต่อแอดมิน', 'error');
@@ -498,7 +496,6 @@ setInterval(resetStrokeDataAt0800, 5000);
     }
 
     function loginSuccess() {
-	localStorage.setItem("userLoggedIn", "true");
         Swal.fire({ title: 'เข้าสู่ระบบสำเร็จ', icon: 'success', timer: 1000, showConfirmButton: false });
         document.getElementById('loginSection').style.display = 'none';
         document.getElementById('mainSystemSection').style.display = 'block';
@@ -885,7 +882,8 @@ setInterval(resetStrokeDataAt0800, 5000);
     });
 	
 
-
+	
+	
 	
 </script>
 
