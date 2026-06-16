@@ -340,6 +340,41 @@
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
     const dbRef = ref(database, 'hospitals_data');
+	// ฟังก์ชันสำหรับรีเซ็ตค่า Stroke
+// ฟังก์ชันสำหรับรีเซ็ตค่า Stroke
+function resetStrokeDataAt0800() {
+    const now = new Date();
+    // เช็คว่าเป็นเวลา 08:00 น. (วินาทีที่ 0-5)
+    if (now.getHours() === 8 && now.getMinutes() === 0 && now.getSeconds() < 5) {
+        
+        console.log("เริ่มดำเนินการรีเซ็ตค่า Stroke Fast Track...");
+
+        // สร้าง Object เพื่ออัปเดตข้อมูลใน Firebase
+        let updates = {};
+        hospitals.forEach(h => {
+            updates[`hospitals_data/${h.id}/stroke_walkin`] = 0;
+            updates[`hospitals_data/${h.id}/stroke_ems`] = 0;
+            updates[`hospitals_data/${h.id}/strokeUpdate`] = "-";
+            updates[`hospitals_data/${h.id}/strokeTimestamp`] = 0;
+        });
+
+        // ส่งคำสั่งอัปเดตไปที่ Firebase
+        update(ref(database), updates).then(() => {
+            console.log("รีเซ็ตค่า Stroke เรียบร้อยแล้ว");
+        }).catch((error) => {
+            console.error("เกิดข้อผิดพลาดในการรีเซ็ต: ", error);
+        });
+    }
+}
+
+// ตรวจสอบทุกๆ 5 วินาที เพื่อดูว่าถึงเวลา 08:00:00 หรือยัง
+setInterval(resetStrokeDataAt0800, 5000);
+// ตรวจสอบทุกๆ 5 วินาที เพื่อดูว่าถึงเวลา 08:00:00 หรือยัง
+setInterval(resetStrokeDataAt0800, 5000);
+	
+	
+	
+	
 
     const defaultHospitals = [
         { id: 0, name: "รพ.สรรพสิทธิประสงค์ (สปส)", green: 0, yellow: 0, red: 0, stroke_walkin: 0, stroke_ems: 0, note: "", reporter: "", phone: "", lastUpdate: "-", strokeUpdate: "-", timestamp: 0, strokeTimestamp: 0, pin: "123456" },
@@ -821,54 +856,7 @@
         if (e.keyCode == 123 || (e.ctrlKey && (e.keyCode == 73 || e.keyCode == 85 || e.keyCode == 83))) e.preventDefault();
     });
 	
-	
-	// ฟังก์ชันสำหรับ Reset ค่า Stroke โดยเฉพาะ
-// ฟังก์ชันเช็คและ Reset
-function checkAndResetIfNeed() {
-    const dbRef = ref(database, 'system_control/last_reset_date');
-    
-    get(dbRef).then((snapshot) => {
-        const lastReset = snapshot.val(); // วันที่รีเซ็ตล่าสุดจาก Firebase
-        const today = new Date().toLocaleDateString('th-TH'); // วันที่ปัจจุบัน
-        const now = new Date();
 
-        // เงื่อนไข: ถ้าเลย 8 โมงเช้าแล้ว และวันที่ล่าสุดที่รีเซ็ตไม่ใช่วันนี้
-        if (now.getHours() >= 8 && lastReset !== today) {
-            console.log("ถึงเวลา Reset ข้อมูล...");
-            performReset(today);
-        }
-    });
-}
-
-// ฟังก์ชันสั่งเขียนค่า 0 ลง Firebase
-function performReset(today) {
-    const dbRef = ref(database);
-    let updates = {};
-    
-    // อัปเดตวันที่ล่าสุดเพื่อไม่ให้มันวน Reset ซ้ำ
-    updates['system_control/last_reset_date'] = today;
-    
-    // วนลูป Reset ค่า Stroke ของทุก รพ.
-    hospitals.forEach((h, index) => {
-        updates['hospitals_data/' + index + '/stroke_walkin'] = 0;
-        updates['hospitals_data/' + index + '/stroke_ems'] = 0;
-        updates['hospitals_data/' + index + '/strokeUpdate'] = "Reset วันที่ " + today;
-    });
-    
-    update(dbRef, updates).then(() => {
-        console.log("ระบบ Reset ค่า Stroke เป็น 0 เรียบร้อยแล้ว");
-    });
-}
-
-// ตั้งค่าให้มัน "เฝ้าดูนาฬิกา" ตลอดเวลา
-setInterval(() => {
-    const now = new Date();
-    // ถ้าเป็นเวลา 08:00 น. ให้สั่ง Reset
-    if (now.getHours() === 8 && now.getMinutes() === 0) {
-        resetStrokeAtEight();
-    }
-}, 60000); // เช็กทุก 1 นาที
-	
 	
 	
 	
