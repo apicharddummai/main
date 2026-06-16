@@ -11,7 +11,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
-        body { font-family: 'Prompt', sans-serif; background-color: #f8fafc; }
+        body { font-family: 'Prompt', sans-serif; background-color: #f8fafc; user-select: none; }
         .custom-table { border-collapse: collapse; width: 100%; border: 1px solid #e2e8f0; }
         .custom-table th { background-color: #f1f5f9; color: #475569; font-weight: 600; padding: 12px 16px; border-bottom: 2px solid #cbd5e1; }
         .custom-table td { padding: 9px 16px; border-bottom: 1px solid #e2e8f0; }
@@ -22,7 +22,7 @@
         .page-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-4 md:p-8" oncontextmenu="return false;">
 
     <div class="max-w-6xl mx-auto space-y-6">
         <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
@@ -63,12 +63,18 @@
     </div>
 
     <script>
-        // 1. ตรวจสอบสิทธิ์ (ต้องมีตั๋วถึงจะผ่าน)
-        if (localStorage.getItem("userLoggedIn") !== "true") {
-            window.location.href = "https://apicharddummai.github.io/main/surgecapacity.html";
-        }
+        // 1. ระบบล็อก View Source และปุ่มลัด (F12, Ctrl+U, Ctrl+S, Ctrl+I, Ctrl+J)
+        document.addEventListener('keydown', e => {
+            if (e.keyCode === 123 || (e.ctrlKey && (e.keyCode === 85 || e.keyCode === 83 || e.keyCode === 73 || e.keyCode === 74))) {
+                e.preventDefault();
+                return false;
+            }
+        });
 
-        // 2. ฟังก์ชันระบบงาน
+        // 2. ระบบเช็คสิทธิ์ (โค้ดเดิมของคุณ)
+        if (localStorage.getItem("userLoggedIn") !== "true") { window.location.href = "https://apicharddummai.github.io/main/surgecapacity.html"; }
+
+        // 3. ระบบดึงข้อมูลและแสดงผล (โค้ดเดิมของคุณทั้งหมด)
         flatpickr("#startPicker, #endPicker", { locale: "th", dateFormat: "Y-m-d" });
         const config = { apiKey: "AIzaSyDsoBamFvs5ToCU8JGKDLp1GaRXmNC--jM", databaseURL: "https://surge-capacity-ubon-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "surge-capacity-ubon" };
         firebase.initializeApp(config);
@@ -79,23 +85,12 @@
         const rowsPerPage = 15;
 
         firebase.database().ref("stroke_history").on("value", (snap) => {
-    const val = snap.val();
-    
-    // โค้ดนี้จะดึงข้อมูลมาแสดง "ทุกรายการที่บันทึก" (ไม่รวมยอด)
-    // ถ้าคุณอยากได้แค่รายการล่าสุด ให้เพิ่ม .slice(0, 50) หรือคัดกรองตามความต้องการ
-    allData = val ? Object.values(val).map(item => ({ 
-        ...item, 
-        timestamp: Number(item.timestamp || 0) 
-    })).sort((a, b) => b.timestamp - a.timestamp) : [];
-    
-    // ตรงนี้คือจุดที่สำคัญ: 
-    // ถ้าคุณไม่อยากให้มันซ้ำบรรทัดกัน คุณต้องมั่นใจว่าในหน้า surgecapacity.html 
-    // ตอนกดบันทึก คุณใช้ key ของ Firebase ที่ไม่ซ้ำกัน
-    
-    filteredData = [...allData];
-    currentPage = 1;
-    renderTable();
-});
+            const val = snap.val();
+            allData = val ? Object.values(val).map(item => ({ ...item, timestamp: Number(item.timestamp || 0) })).sort((a, b) => b.timestamp - a.timestamp) : [];
+            filteredData = [...allData];
+            currentPage = 1;
+            renderTable();
+        });
 
         function renderTable() {
             const start = (currentPage - 1) * rowsPerPage;
@@ -119,20 +114,12 @@
         function renderPagination() {
             const pageCount = Math.ceil(filteredData.length / rowsPerPage);
             let html = `<button onclick="goToPage(1)" class="page-btn">«</button>`;
-            for (let i = 1; i <= pageCount; i++) {
-                if (i === currentPage || (i >= currentPage - 2 && i <= currentPage + 2)) {
-                    html += `<button onclick="goToPage(${i})" class="page-btn ${i === currentPage ? 'active' : ''}">${i}</button>`;
-                }
-            }
+            for (let i = 1; i <= pageCount; i++) { if (i === currentPage || (i >= currentPage - 2 && i <= currentPage + 2)) html += `<button onclick="goToPage(${i})" class="page-btn ${i === currentPage ? 'active' : ''}">${i}</button>`; }
             html += `<button onclick="goToPage(${pageCount})" class="page-btn">»</button>`;
             document.getElementById("pagination").innerHTML = html;
         }
 
-        function goToPage(page) {
-            currentPage = Math.max(1, Math.min(page, Math.ceil(filteredData.length / rowsPerPage)));
-            renderTable();
-        }
-
+        function goToPage(page) { currentPage = Math.max(1, Math.min(page, Math.ceil(filteredData.length / rowsPerPage))); renderTable(); }
         function handleSearch() {
             const startStr = document.getElementById("startPicker").value;
             const endStr = document.getElementById("endPicker").value;
@@ -144,7 +131,6 @@
             currentPage = 1;
             renderTable();
         }
-
         function resetData() { location.reload(); }
         function downloadExcel() { XLSX.writeFile(XLSX.utils.table_to_book(document.querySelector('.custom-table')), "Stroke_Report.xlsx"); }
     </script>
