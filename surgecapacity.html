@@ -776,13 +776,19 @@ push(ref(database, 'stroke_history'), {
     walkin: h.stroke_walkin || 0,
     ems: h.stroke_ems || 0,
     timestamp: Date.now()
-})
-.then(() => {
-    console.log("บันทึก history สำเร็จ");
-})
-.catch(err => {
-    console.error("history error", err);
 });
+        set(dbRef, hospitals).then(() => {
+            let btn = document.getElementById(`btn-${id}`);
+            btn.classList.add('btn-pulse');
+            setTimeout(() => btn.classList.remove('btn-pulse'), 500);
+            
+            Swal.fire({ title: 'บันทึกข้อมูลสำเร็จ', icon: 'success', timer: 1500, showConfirmButton: false });
+            filterHospitals('save');
+        }).catch((err) => {
+            console.error("Firebase Save Error: ", err);
+            Swal.fire({ title: 'บันทึกไม่สำเร็จ', text: 'โปรดตรวจสอบสิทธิ์อินเทอร์เน็ต', icon: 'error' });
+        });
+    }
 
     window.filterHospitals = function(source) {
         // หากไม่มีบทบาทผู้ใช้ ให้ระบบหยุดทำงาน
