@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>Stroke Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+	
+	
+	
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+	
+	
+	
+	
+    <style>
+        body { font-family: 'Prompt', sans-serif; background-color: #f8fafc; }
+        .custom-table { border-collapse: collapse; width: 100%; border: 1px solid #e2e8f0; }
+        .custom-table th { background-color: #f1f5f9; color: #475569; font-weight: 600; padding: 12px 16px; border-bottom: 2px solid #cbd5e1; }
+        .custom-table td { padding: 9px 16px; border-bottom: 1px solid #e2e8f0; }
+        .custom-table tr:hover { background-color: #f8fafc; }
+        
+        .pagination-container { display: flex; justify-content: center; gap: 5px; margin-top: 20px; }
+        .page-btn { padding: 6px 12px; border: 1px solid #e2e8f0; border-radius: 6px; background: white; color: #475569; cursor: pointer; transition: 0.3s; font-size: 14px; }
+        .page-btn:hover { background: #eff6ff; border-color: #3b82f6; color: #2563eb; }
+        .page-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto space-y-6">
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+            <div class="grid grid-cols-1 md:grid-cols-6 gap-4 mb-8 bg-slate-50 p-6 rounded-2xl">
+                <div><label class="text-xs font-bold text-slate-500 block mb-1">เริ่มต้น:</label><input type="text" id="startPicker" class="w-full border p-2 rounded-lg"></div>
+                <div><label class="text-xs font-bold text-slate-500 block mb-1">เวลาเริ่ม:</label><input type="time" id="startTime" class="w-full border p-2 rounded-lg" value="00:00"></div>
+                <div><label class="text-xs font-bold text-slate-500 block mb-1">สิ้นสุด:</label><input type="text" id="endPicker" class="w-full border p-2 rounded-lg"></div>
+                <div><label class="text-xs font-bold text-slate-500 block mb-1">เวลาสิ้นสุด:</label><input type="time" id="endTime" class="w-full border p-2 rounded-lg" value="23:59"></div>
+                <div><label class="text-xs font-bold text-slate-500 block mb-1">ชื่อโรงพยาบาล:</label><input type="text" id="hospSearch" class="w-full border p-2 rounded-lg" placeholder="พิมพ์ชื่อ รพ..."></div>
+                <div class="flex items-end gap-2">
+                    <button onclick="handleSearch()" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold w-full">ค้นหา</button>
+                    <button onclick="resetData()" class="bg-slate-400 text-white px-4 py-2 rounded-lg font-semibold w-full">ล้าง</button>
+                </div>
+            </div>
+
+           <div class="flex justify-between items-center mb-6">
+    <h2 class="text-xl font-bold text-slate-800">📋 รายงาน 🧠 Stroke Fast Track</h2>
+    
+    <div class="flex gap-2">
+    <button onclick="downloadExcel()" class="bg-emerald-600 text-white px-6 py-2 rounded-xl font-semibold hover:bg-emerald-700 transition">
+        ดาวน์โหลด Excel
+    </button>
+    
+    <button onclick="window.location.href='https://apicharddummai.github.io/main/surgecapacity.html'" class="bg-slate-200 text-slate-700 px-6 py-2 rounded-xl font-semibold hover:bg-slate-300 transition">
+        ย้อนกลับ
+    </button>
+</div>
+            
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th class="text-left">โรงพยาบาล</th>
+                        <th class="text-center">Walk In</th>
+                        <th class="text-center">EMS</th>
+                        <th class="text-center text-blue-600">รวม</th>
+                        <th class="text-left">วันที่/เวลาบันทึก</th>
+                    </tr>
+                </thead>
+                <tbody id="summaryBody"></tbody>
+            </table>
+            <div id="pagination" class="pagination-container"></div>
+        </div>
+    </div>
+
+    <script>
+        flatpickr("#startPicker, #endPicker", { locale: "th", dateFormat: "Y-m-d" });
+        const config = { apiKey: "AIzaSyDsoBamFvs5ToCU8JGKDLp1GaRXmNC--jM", databaseURL: "https://surge-capacity-ubon-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "surge-capacity-ubon" };
+        firebase.initializeApp(config);
+
+        let allData = [];
+        let filteredData = [];
+        let currentPage = 1;
+        const rowsPerPage = 15;
+
+        firebase.database().ref("stroke_history").on("value", (snap) => {
+            const val = snap.val();
+            // เรียงข้อมูลจากใหม่ไปเก่า (b.timestamp - a.timestamp)
+            allData = val ? Object.values(val).map(item => ({ 
+                ...item, 
+                timestamp: Number(item.timestamp || 0) 
+            })).sort((a, b) => b.timestamp - a.timestamp) : [];
+            
+            filteredData = [...allData];
+            currentPage = 1;
+            renderTable();
+        });
+
+        function renderTable() {
+            const start = (currentPage - 1) * rowsPerPage;
+            const paginatedItems = filteredData.slice(start, start + rowsPerPage);
+            
+            let html = "";
+            paginatedItems.forEach(item => {
+                const w = Number(item.walkin || 0);
+                const e = Number(item.ems || 0);
+                html += `<tr>
+                    <td class="font-semibold text-slate-700">${item.hospital || '-'}</td>
+                    <td class="text-center">${w}</td>
+                    <td class="text-center">${e}</td>
+                    <td class="text-center font-bold text-blue-600">${w + e}</td>
+                    <td class="text-slate-500 text-sm">${item.dateText || '-'}</td>
+                </tr>`;
+            });
+            document.getElementById("summaryBody").innerHTML = html;
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const pageCount = Math.ceil(filteredData.length / rowsPerPage);
+            let html = "";
+            
+            // ปุ่มไปหน้าแรก
+            html += `<button onclick="goToPage(1)" class="page-btn">«</button>`;
+            
+            // แสดงเฉพาะเลขหน้าที่ใกล้เคียงหน้าปัจจุบัน
+            for (let i = 1; i <= pageCount; i++) {
+                if (i === currentPage || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    html += `<button onclick="goToPage(${i})" class="page-btn ${i === currentPage ? 'active' : ''}">${i}</button>`;
+                }
+            }
+            
+            // ปุ่มไปหน้าสุดท้าย
+            html += `<button onclick="goToPage(${pageCount})" class="page-btn">»</button>`;
+            
+            document.getElementById("pagination").innerHTML = html;
+        }
+
+        function goToPage(page) {
+            currentPage = Math.max(1, Math.min(page, Math.ceil(filteredData.length / rowsPerPage)));
+            renderTable();
+        }
+
+        function handleSearch() {
+            const startStr = document.getElementById("startPicker").value;
+            const endStr = document.getElementById("endPicker").value;
+            const hospSearch = document.getElementById("hospSearch").value.toLowerCase();
+            
+            if (!startStr || !endStr) return alert("กรุณาเลือกวันที่");
+
+            const start = new Date(`${startStr}T${document.getElementById("startTime").value}:00`).getTime();
+            const end = new Date(`${endStr}T${document.getElementById("endTime").value}:59`).getTime();
+
+            filteredData = allData.filter(item => {
+                return item.timestamp >= start && item.timestamp <= end && item.hospital.toLowerCase().includes(hospSearch);
+            });
+            
+            currentPage = 1;
+            renderTable();
+        }
+
+        function resetData() { location.reload(); }
+        function downloadExcel() { XLSX.writeFile(XLSX.utils.table_to_book(document.querySelector('.custom-table')), "Stroke_Report.xlsx"); }
+
+        // ป้องกันการคลิกขวาและปุ่มลัด
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.keyCode === 123 || (e.ctrlKey && (e.keyCode === 85 || e.keyCode === 83)) || (e.ctrlKey && e.shiftKey && e.keyCode === 73)) {
+                e.preventDefault();
+            }
+        });
+		
+		// --- ตรวจสอบสิทธิ์แบบง่ายและเสถียร ---
+// เช็คว่าเคยผ่านการล็อกอิน (ตั้งค่าตั๋ว) มาก่อนไหม
+if (localStorage.getItem("userLoggedIn") !== "true") {
+    // ถ้าไม่มีตั๋ว ให้ดีดกลับไปหน้าหลัก (surgecapacity.html) หรือ login.html
+    window.location.href = "https://apicharddummai.github.io/main/surgecapacity.html";
+}
+    </script>
+</body>
+</html>
