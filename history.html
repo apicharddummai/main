@@ -79,16 +79,23 @@
         const rowsPerPage = 15;
 
         firebase.database().ref("stroke_history").on("value", (snap) => {
-            const val = snap.val();
-            allData = val ? Object.values(val).map(item => ({ 
-                ...item, 
-                timestamp: Number(item.timestamp || 0) 
-            })).sort((a, b) => b.timestamp - a.timestamp) : [];
-            
-            filteredData = [...allData];
-            currentPage = 1;
-            renderTable();
-        });
+    const val = snap.val();
+    
+    // โค้ดนี้จะดึงข้อมูลมาแสดง "ทุกรายการที่บันทึก" (ไม่รวมยอด)
+    // ถ้าคุณอยากได้แค่รายการล่าสุด ให้เพิ่ม .slice(0, 50) หรือคัดกรองตามความต้องการ
+    allData = val ? Object.values(val).map(item => ({ 
+        ...item, 
+        timestamp: Number(item.timestamp || 0) 
+    })).sort((a, b) => b.timestamp - a.timestamp) : [];
+    
+    // ตรงนี้คือจุดที่สำคัญ: 
+    // ถ้าคุณไม่อยากให้มันซ้ำบรรทัดกัน คุณต้องมั่นใจว่าในหน้า surgecapacity.html 
+    // ตอนกดบันทึก คุณใช้ key ของ Firebase ที่ไม่ซ้ำกัน
+    
+    filteredData = [...allData];
+    currentPage = 1;
+    renderTable();
+});
 
         function renderTable() {
             const start = (currentPage - 1) * rowsPerPage;
