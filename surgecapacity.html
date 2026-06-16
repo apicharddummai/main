@@ -313,6 +313,12 @@
         </select>
         <input type="text" id="searchInput" class="search-box" placeholder="🔍 หรือพิมพ์ค้นหาเอง..." oninput="filterHospitals('input')">
         <button id="summaryBtn" class="summary-btn" onclick="showSummary()">📊 สรุปรายงาน</button>
+	<button id="historyBtn"
+        class="summary-btn"
+        style="background:#6366f1; display:none;"
+        onclick="window.location.href='history.html'">
+📜 ประวัติข้อมูล
+</button>
         <button id="clearBtn" class="clear-btn" onclick="clearSearch()">ย้อนกลับ</button>
         <button class="logout-btn" onclick="handleLogout()">ออกจากระบบ 🚪</button>
     </div>
@@ -322,8 +328,8 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue, get, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
+    import { getDatabase, ref, set, onValue, get, update, push }
+from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
     const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
     
     const firebaseConfig = {
@@ -436,11 +442,6 @@ setInterval(resetStrokeDataAt0800, 5000);
     });
 	
 	
-	
-	
-	
-	
-
     function initLoginDropdown() {
         const loginDropdown = document.getElementById('loginHospitalDropdown');
         let sortedForDropdown = [...hospitals].sort((a, b) => a.name.localeCompare(b.name, 'th'));
@@ -449,6 +450,9 @@ setInterval(resetStrokeDataAt0800, 5000);
             '<option value="1669">ศูนย์รับแจ้งเหตุและสั่งการ 1669 (ADMIN)</option>' +
             sortedForDropdown.map(h => `<option value="${h.name}">${h.name}</option>`).join('');
     }
+
+
+
 
     function initDropdown() {
         const dropdown = document.getElementById('hospitalDropdown');
@@ -765,7 +769,14 @@ setInterval(resetStrokeDataAt0800, 5000);
 
     window.save = function(id) {
         updateLocalData(id);
-        
+        const h = hospitals.find(x => x.id === id);
+
+push(ref(database, 'stroke_history'), {
+    hospital: h.name,
+    walkin: h.stroke_walkin || 0,
+    ems: h.stroke_ems || 0,
+    timestamp: Date.now()
+});
         set(dbRef, hospitals).then(() => {
             let btn = document.getElementById(`btn-${id}`);
             btn.classList.add('btn-pulse');
@@ -817,21 +828,25 @@ setInterval(resetStrokeDataAt0800, 5000);
         let filtered = [];
 
         if (currentUserRole === "1669") {
-            // สิทธิ์แอดมิน 1669: เห็นทุก รพ. และกรองตามคำค้นหาได้
-            document.getElementById('summaryBtn').style.display = 'inline-block';
-            document.getElementById('hospitalDropdown').style.display = 'inline-block';
-            document.getElementById('searchInput').style.display = 'inline-block';
-            
-            filtered = hospitals.filter(h => h.name.toLowerCase().includes(val));
-            filtered.sort((a, b) => b.timestamp - a.timestamp);
-        } else {
-            // สิทธิ์โรงพยาบาลทั่วไป: ล็อกผลลัพธ์ให้เห็นเฉพาะชื่อ รพ. ตัวเอง 1 ใบเท่านั้น
-            document.getElementById('summaryBtn').style.display = 'none'; // ซ่อนสรุปรายงานไม่ให้ รพ. อื่นเห็น
-            document.getElementById('hospitalDropdown').style.display = 'none'; // ซ่อนตัวกรอง
-            document.getElementById('searchInput').style.display = 'none'; // ซ่อนกล่องค้นหา
-            
-            filtered = hospitals.filter(h => h.name === currentUserRole);
-        }
+    // สิทธิ์แอดมิน 1669: เห็นทุก รพ. และกรองตามคำค้นหาได้
+    document.getElementById('summaryBtn').style.display = 'inline-block';
+    document.getElementById('historyBtn').style.display = 'inline-block'; // เพิ่มบรรทัดนี้
+
+    document.getElementById('hospitalDropdown').style.display = 'inline-block';
+    document.getElementById('searchInput').style.display = 'inline-block';
+
+    filtered = hospitals.filter(h => h.name.toLowerCase().includes(val));
+    filtered.sort((a, b) => b.timestamp - a.timestamp);
+} else {
+    // สิทธิ์โรงพยาบาลทั่วไป
+    document.getElementById('summaryBtn').style.display = 'none';
+    document.getElementById('historyBtn').style.display = 'none'; // เพิ่มบรรทัดนี้
+
+    document.getElementById('hospitalDropdown').style.display = 'none';
+    document.getElementById('searchInput').style.display = 'none';
+
+    filtered = hospitals.filter(h => h.name === currentUserRole);
+}
 
         render(filtered);
     }
@@ -839,6 +854,7 @@ setInterval(resetStrokeDataAt0800, 5000);
     window.clearSearch = function() {
         document.getElementById('searchInput').value = '';
         document.getElementById('hospitalDropdown').value = '';
+		
         filterHospitals('clear');
     }
 
