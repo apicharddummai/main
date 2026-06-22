@@ -327,66 +327,47 @@
 </div>
 <script>
     // 1. เก็บฟังก์ชันไว้ที่เดิม (ไม่ต้องเปลี่ยน)
-function checkAndResetDaily() {
-    const lastReset = localStorage.getItem("lastResetDate");
-    const today = new Date();
-    const todayDateString = today.toLocaleDateString();
-    const currentHour = today.getHours();
+// --- วางไว้ในตำแหน่งเดียวกับที่เคยวางฟังก์ชันรีเซ็ต ---
+function checkAndResetDailyServerSide() {
+    const db = firebase.database();
+    
+    // 1. ดึงข้อมูลสถานะการรีเซ็ตจาก Firebase
+    db.ref("system_status/lastResetDate").once("value").then((snapshot) => {
+        const lastReset = snapshot.val();
+        const today = new Date();
+        // แปลงเวลาให้เป็นไทย (GMT+7)
+        const offset = 7 * 60 * 60 * 1000;
+        const thaiDate = new Date(today.getTime() + offset);
+        const todayDateString = thaiDate.toISOString().split('T')[0]; // ได้เป็น "2026-06-22"
 
-    if (lastReset !== todayDateString && currentHour >= 8) {
-        hospitals.forEach(h => {
-            h.stroke_walkin = 0;
-            h.stroke_ems = 0;
-            h.strokeUpdate = "-";
-            h.strokeTimestamp = 0;
-        });
-        set(dbRef, hospitals); // อัปเดต Firebase
-        localStorage.setItem("lastResetDate", todayDateString);
-        console.log("รีเซ็ตค่าให้แล้ว");
-    }
-}
-
-// 2. ย้ายตำแหน่งการเรียกใช้
-onValue(dbRef, (snapshot) => {
-    const cloudData = snapshot.val();
-    if (cloudData) {
-        hospitals = cloudData;
-    } else {
-        hospitals = [...defaultHospitals];
-    }
-
-    // --- ระบบรีเซ็ตค่า Stroke อัตโนมัติ ---
-    const now = new Date();
-    const todayStr = now.toLocaleDateString();
-    const lastReset = localStorage.getItem("lastResetDate");
-
-    // เงื่อนไข: ถ้าเวลา 8 โมงเช้าเป็นต้นไป และยังไม่ได้รีเซ็ตของวันนี้
-    if (now.getHours() >= 8 && lastReset !== todayStr) {
-        let hasChanges = false;
-        hospitals.forEach(h => {
-            // เช็คว่าถ้าเลขยังไม่เป็น 0 ให้แก้เป็น 0
-            if (h.stroke_walkin !== 0 || h.stroke_ems !== 0) {
-                h.stroke_walkin = 0;
-                h.stroke_ems = 0;
-                h.strokeUpdate = "-";
-                h.strokeTimestamp = 0;
-                hasChanges = true;
-            }
-        });
-
-        if (hasChanges) {
-            // อัปเดตลง Firebase
-            set(dbRef, hospitals).then(() => {
-                localStorage.setItem("lastResetDate", todayStr);
-                console.log("ระบบรีเซ็ตข้อมูลตอน 8 โมงเรียบร้อยแล้ว");
-                location.reload(); // ให้หน้าเว็บโหลดใหม่เพื่อให้เลขเป็น 0 สดๆ
+        // 2. เช็คเงื่อนไข: วันนี้ยังไม่รีเซ็ต และเวลาเลย 8 โมงเช้าแล้ว
+        if (lastReset !== todayDateString && thaiDate.getHours() >= 8) {
+            
+            // 3. ทำการรีเซ็ตข้อมูลทั้งหมด
+            db.ref("hospitals").once("value").then((snap) => {
+                let currentData = snap.val();
+                if (currentData) {
+                    currentData.forEach(h => {
+                        h.stroke_walkin = 0;
+                        h.stroke_ems = 0;
+                        h.strokeUpdate = "-";
+                        h.strokeTimestamp = 0;
+                    });
+                    
+                    // อัปเดตข้อมูลเป็น 0 ทั้งหมด + บันทึกวันที่รีเซ็ตใน Firebase
+                    const updates = {};
+                    updates["hospitals"] = currentData;
+                    updates["system_status/lastResetDate"] = todayDateString;
+                    
+                    db.ref().update(updates).then(() => {
+                        console.log("รีเซ็ตสำเร็จและบันทึกลง Server แล้ว");
+                        location.reload(); // ให้หน้าเว็บโหลดใหม่หลังรีเซ็ต
+                    });
+                }
             });
         }
-    }
-    // ------------------------------------
-
-    render(hospitals); 
-});
+    });
+}
 </script>
 
 
