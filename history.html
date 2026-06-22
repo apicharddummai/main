@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <meta charset="UTF-8">
     <title>Stroke Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
@@ -41,8 +42,10 @@
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-xl font-bold text-slate-800">📋 รายงาน 🧠 Stroke Fast Track</h2>
                 <div class="flex gap-2">
+				<button onclick="showTotalSummary()" class="bg-indigo-600 text-white px-6 py-2 rounded-xl font-semibold hover:bg-indigo-700 transition">สรุปภาพรวมทั้งหมด</button>
                     <button onclick="downloadExcel()" class="bg-emerald-600 text-white px-6 py-2 rounded-xl font-semibold hover:bg-emerald-700 transition">ดาวน์โหลด Excel</button>
-                    <button onclick="window.location.href='https://apicharddummai.github.io/main/surgecapacity.html'" class="bg-slate-200 text-slate-700 px-6 py-2 rounded-xl font-semibold hover:bg-slate-300 transition">ย้อนกลับ</button>
+					
+                    <button onclick="window.location.href='surgecapacity.html'" class="bg-slate-200 text-slate-700 px-6 py-2 rounded-xl font-semibold hover:bg-slate-300 transition">ย้อนกลับ</button>
                 </div>
             </div>
             
@@ -63,7 +66,9 @@
     </div>
 
     <script>
-        // 1. ระบบล็อก View Source และปุ่มลัด (F12, Ctrl+U, Ctrl+S, Ctrl+I, Ctrl+J)
+      
+
+        // 2. ระบบดึงข้อมูล (เดิม)
         document.addEventListener('keydown', e => {
             if (e.keyCode === 123 || (e.ctrlKey && (e.keyCode === 85 || e.keyCode === 83 || e.keyCode === 73 || e.keyCode === 74))) {
                 e.preventDefault();
@@ -71,10 +76,6 @@
             }
         });
 
-        // 2. ระบบเช็คสิทธิ์ (โค้ดเดิมของคุณ)
-        if (localStorage.getItem("userLoggedIn") !== "true") { window.location.href = "https://apicharddummai.github.io/main/surgecapacity.html"; }
-
-        // 3. ระบบดึงข้อมูลและแสดงผล (โค้ดเดิมของคุณทั้งหมด)
         flatpickr("#startPicker, #endPicker", { locale: "th", dateFormat: "Y-m-d" });
         const config = { apiKey: "AIzaSyDsoBamFvs5ToCU8JGKDLp1GaRXmNC--jM", databaseURL: "https://surge-capacity-ubon-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "surge-capacity-ubon" };
         firebase.initializeApp(config);
@@ -91,6 +92,8 @@
             currentPage = 1;
             renderTable();
         });
+
+
 
         function renderTable() {
             const start = (currentPage - 1) * rowsPerPage;
@@ -132,7 +135,96 @@
             renderTable();
         }
         function resetData() { location.reload(); }
-        function downloadExcel() { XLSX.writeFile(XLSX.utils.table_to_book(document.querySelector('.custom-table')), "Stroke_Report.xlsx"); }
-    </script>
+      function downloadExcel() { XLSX.writeFile(XLSX.utils.table_to_book(document.querySelector('.custom-table')), "Stroke_Report.xlsx"); }
+ function showTotalSummary() {
+    // 1. จัดกลุ่มข้อมูลแยกตาม วันที่ และ โรงพยาบาล
+    // เพื่อหาว่าในแต่ละวัน แต่ละ รพ. มีค่าล่าสุดเท่าไหร่
+    const dailyData = {};
+
+    filteredData.forEach(item => {
+        // แปลงเวลาให้เป็นวันที่ (ตัดเวลาทิ้งเพื่อใช้เป็น Key)
+        const dateObj = new Date(item.timestamp);
+        
+        // ถ้าเวลา < 08.00 ให้ถือว่าเป็นของวันก่อนหน้า (ตามเงื่อนไข 08.00)
+        if (dateObj.getHours() < 8) {
+            dateObj.setDate(dateObj.getDate() - 1);
+        }
+        const dateKey = dateObj.toLocaleDateString('th-TH');
+        const hosp = item.hospital;
+        const key = `${dateKey}_${hosp}`;
+
+        // เก็บแค่ค่าล่าสุดของวันนั้นๆ (ถ้ามีหลายบันทึกในวันเดียวกัน เอาค่าสุดท้ายที่เข้ามา)
+        // เพราะเรา sort by timestamp ไว้ตั้งแต่แรกแล้วในส่วนของ Firebase
+        if (!dailyData[key]) {
+            dailyData[key] = {
+                walkin: Number(item.walkin || 0),
+                ems: Number(item.ems || 0)
+            };
+        }
+    });
+
+    // 2. รวมยอดจากค่าที่คัดมาแล้ว
+    const summary = {};
+    Object.keys(dailyData).forEach(key => {
+        const hosp = key.split('_')[1];
+        if (!summary[hosp]) summary[hosp] = { walkin: 0, ems: 0 };
+        summary[hosp].walkin += dailyData[key].walkin;
+        summary[hosp].ems += dailyData[key].ems;
+    });
+
+    // 3. สร้างตารางแสดงผล
+    let tableRows = "";
+    let grandTotalWalkin = 0;
+    let grandTotalEms = 0;
+
+    Object.keys(summary).sort().forEach(hosp => {
+        const w = summary[hosp].walkin;
+        const e = summary[hosp].ems;
+        grandTotalWalkin += w;
+        grandTotalEms += e;
+        tableRows += `
+            <tr class="border-b">
+                <td class="text-left py-2 px-2">${hosp}</td>
+                <td class="text-center py-2 px-2">${w}</td>
+                <td class="text-center py-2 px-2">${e}</td>
+                <td class="text-center py-2 px-2 font-bold">${w + e}</td>
+            </tr>`;
+    });
+
+    Swal.fire({
+        title: '📊 สรุปยอดรวม (ตัดรอบ 08.00 น.)',
+        width: '600px',
+        html: `
+            <div class="max-h-[400px] overflow-y-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="py-2 px-2 text-left">รพ.</th>
+                            <th class="py-2 px-2 text-center">Walk In</th>
+                            <th class="py-2 px-2 text-center">EMS</th>
+                            <th class="py-2 px-2 text-center">รวม</th>
+                        </tr>
+                    </thead>
+                    <tbody>${tableRows}</tbody>
+                    <tfoot class="bg-blue-50 font-bold">
+                        <tr>
+                            <td class="py-2 px-2">รวมทั้งหมด</td>
+                            <td class="text-center py-2">${grandTotalWalkin}</td>
+                            <td class="text-center py-2">${grandTotalEms}</td>
+                            <td class="text-center py-2">${grandTotalWalkin + grandTotalEms}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        `
+    });
+}
+
+
+
+   </script>
+	
+	
+	
 </body>
 </html>
