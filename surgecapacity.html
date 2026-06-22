@@ -465,7 +465,8 @@ setInterval(resetStrokeDataAt0800, 5000);
     let hospitals = [];
     let currentUserRole = ""; // เก็บว่าคนที่ล็อกอินอยู่เป็นใคร ("1669" หรือ "ชื่อโรงพยาบาล")
 
-   onValue(dbRef, (snapshot) => {
+   // ก๊อปปี้โค้ดนี้ไปวางแทนที่ onValue เดิมของคุณทั้งหมดครับ
+onValue(dbRef, (snapshot) => {
     const cloudData = snapshot.val();
     if (cloudData && Object.keys(cloudData).length > 0) {
         hospitals = cloudData;
@@ -474,32 +475,38 @@ setInterval(resetStrokeDataAt0800, 5000);
         hospitals = [...defaultHospitals];
     }
 
-    // --- เริ่มต้นส่วนของระบบรีเซ็ต (เพิ่มตรงนี้) ---
+    // --- ระบบรีเซ็ตอัตโนมัติ (Server-Side Logic) ---
     const now = new Date();
-    const todayStr = now.toLocaleDateString();
-    const lastReset = localStorage.getItem("lastResetDate");
+    const offset = 7 * 60 * 60 * 1000; // เวลาไทย
+    const thaiDate = new Date(now.getTime() + offset);
+    const todayStr = thaiDate.toISOString().split('T')[0]; // รูปแบบ YYYY-MM-DD
 
-    // ถ้าเวลาเกิน 8 โมงเช้า และยังไม่รีเซ็ตของวันนี้
-    if (now.getHours() >= 8 && lastReset !== todayStr) {
-        let hasChanges = false;
-        hospitals.forEach(h => {
-            // เช็คว่าถ้าค่าไม่ใช่ 0 ให้รีเซ็ต
-            if (h.stroke_walkin !== 0 || h.stroke_ems !== 0) {
+    // ดึงค่าวันที่ล่าสุดที่รีเซ็ตจาก Firebase (กิ่ง system_status)
+    const resetRef = ref(database, 'system_status/lastResetDate');
+    onValue(resetRef, (resetSnap) => {
+        const lastReset = resetSnap.val();
+
+        // เงื่อนไข: ถ้าเลย 8 โมงเช้า และวันที่ล่าสุดไม่ตรงกับวันนี้
+        if (thaiDate.getHours() >= 8 && lastReset !== todayStr) {
+            
+            // ทำการรีเซ็ตข้อมูล
+            hospitals.forEach(h => {
                 h.stroke_walkin = 0;
                 h.stroke_ems = 0;
                 h.strokeUpdate = "-";
                 h.strokeTimestamp = 0;
-                hasChanges = true;
-            }
-        });
+            });
 
-        if (hasChanges) {
-            set(dbRef, hospitals); // อัปเดตค่า 0 ลง Firebase
-            localStorage.setItem("lastResetDate", todayStr);
-            console.log("ระบบรีเซ็ตข้อมูลตอน 8 โมงเรียบร้อยแล้ว");
+            // อัปเดตข้อมูลโรงพยาบาล และ บันทึกวันที่รีเซ็ตในกิ่ง system_status
+            update(ref(database), {
+                'hospitals_data': hospitals,
+                'system_status/lastResetDate': todayStr
+            }).then(() => {
+                console.log("ระบบรีเซ็ตข้อมูลเป็น 0 เรียบร้อยแล้ว (วันที่ " + todayStr + ")");
+            });
         }
-    }
-    // --- จบส่วนของระบบรีเซ็ต ---
+    }, { onlyOnce: true });
+    // --- จบระบบรีเซ็ต ---
 
     initLoginDropdown();
     initDropdown();
