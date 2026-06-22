@@ -325,6 +325,70 @@
 
     <div id="app" class="grid-container"></div>
 </div>
+<script>
+    // 1. เก็บฟังก์ชันไว้ที่เดิม (ไม่ต้องเปลี่ยน)
+function checkAndResetDaily() {
+    const lastReset = localStorage.getItem("lastResetDate");
+    const today = new Date();
+    const todayDateString = today.toLocaleDateString();
+    const currentHour = today.getHours();
+
+    if (lastReset !== todayDateString && currentHour >= 8) {
+        hospitals.forEach(h => {
+            h.stroke_walkin = 0;
+            h.stroke_ems = 0;
+            h.strokeUpdate = "-";
+            h.strokeTimestamp = 0;
+        });
+        set(dbRef, hospitals); // อัปเดต Firebase
+        localStorage.setItem("lastResetDate", todayDateString);
+        console.log("รีเซ็ตค่าให้แล้ว");
+    }
+}
+
+// 2. ย้ายตำแหน่งการเรียกใช้
+onValue(dbRef, (snapshot) => {
+    const cloudData = snapshot.val();
+    if (cloudData) {
+        hospitals = cloudData;
+    } else {
+        hospitals = [...defaultHospitals];
+    }
+
+    // --- ระบบรีเซ็ตค่า Stroke อัตโนมัติ ---
+    const now = new Date();
+    const todayStr = now.toLocaleDateString();
+    const lastReset = localStorage.getItem("lastResetDate");
+
+    // เงื่อนไข: ถ้าเวลา 8 โมงเช้าเป็นต้นไป และยังไม่ได้รีเซ็ตของวันนี้
+    if (now.getHours() >= 8 && lastReset !== todayStr) {
+        let hasChanges = false;
+        hospitals.forEach(h => {
+            // เช็คว่าถ้าเลขยังไม่เป็น 0 ให้แก้เป็น 0
+            if (h.stroke_walkin !== 0 || h.stroke_ems !== 0) {
+                h.stroke_walkin = 0;
+                h.stroke_ems = 0;
+                h.strokeUpdate = "-";
+                h.strokeTimestamp = 0;
+                hasChanges = true;
+            }
+        });
+
+        if (hasChanges) {
+            // อัปเดตลง Firebase
+            set(dbRef, hospitals).then(() => {
+                localStorage.setItem("lastResetDate", todayStr);
+                console.log("ระบบรีเซ็ตข้อมูลตอน 8 โมงเรียบร้อยแล้ว");
+                location.reload(); // ให้หน้าเว็บโหลดใหม่เพื่อให้เลขเป็น 0 สดๆ
+            });
+        }
+    }
+    // ------------------------------------
+
+    render(hospitals); 
+});
+</script>
+
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -420,26 +484,54 @@ setInterval(resetStrokeDataAt0800, 5000);
     let hospitals = [];
     let currentUserRole = ""; // เก็บว่าคนที่ล็อกอินอยู่เป็นใคร ("1669" หรือ "ชื่อโรงพยาบาล")
 
-    onValue(dbRef, (snapshot) => {
-        const cloudData = snapshot.val();
-        if (cloudData && Object.keys(cloudData).length > 0) {
-            hospitals = cloudData;
-        } else {
-            set(dbRef, defaultHospitals);
-            hospitals = [...defaultHospitals];
+   onValue(dbRef, (snapshot) => {
+    const cloudData = snapshot.val();
+    if (cloudData && Object.keys(cloudData).length > 0) {
+        hospitals = cloudData;
+    } else {
+        set(dbRef, defaultHospitals);
+        hospitals = [...defaultHospitals];
+    }
+
+    // --- เริ่มต้นส่วนของระบบรีเซ็ต (เพิ่มตรงนี้) ---
+    const now = new Date();
+    const todayStr = now.toLocaleDateString();
+    const lastReset = localStorage.getItem("lastResetDate");
+
+    // ถ้าเวลาเกิน 8 โมงเช้า และยังไม่รีเซ็ตของวันนี้
+    if (now.getHours() >= 8 && lastReset !== todayStr) {
+        let hasChanges = false;
+        hospitals.forEach(h => {
+            // เช็คว่าถ้าค่าไม่ใช่ 0 ให้รีเซ็ต
+            if (h.stroke_walkin !== 0 || h.stroke_ems !== 0) {
+                h.stroke_walkin = 0;
+                h.stroke_ems = 0;
+                h.strokeUpdate = "-";
+                h.strokeTimestamp = 0;
+                hasChanges = true;
+            }
+        });
+
+        if (hasChanges) {
+            set(dbRef, hospitals); // อัปเดตค่า 0 ลง Firebase
+            localStorage.setItem("lastResetDate", todayStr);
+            console.log("ระบบรีเซ็ตข้อมูลตอน 8 โมงเรียบร้อยแล้ว");
         }
-        initLoginDropdown();
-        initDropdown();
-        
-        // เช็กสถานะล็อกอินเดิมจาก SessionStorage
-        const savedRole = sessionStorage.getItem('userRole');
-        if (savedRole) {
-            currentUserRole = savedRole;
-            document.getElementById('loginSection').style.display = 'none';
-            document.getElementById('mainSystemSection').style.display = 'block';
-            filterHospitals('sync');
-        }
-    });
+    }
+    // --- จบส่วนของระบบรีเซ็ต ---
+
+    initLoginDropdown();
+    initDropdown();
+    
+    // เช็กสถานะล็อกอินเดิมจาก SessionStorage
+    const savedRole = sessionStorage.getItem('userRole');
+    if (savedRole) {
+        currentUserRole = savedRole;
+        document.getElementById('loginSection').style.display = 'none';
+        document.getElementById('mainSystemSection').style.display = 'block';
+        filterHospitals('sync');
+    }
+});
 	
 	
     function initLoginDropdown() {
