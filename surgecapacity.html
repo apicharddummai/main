@@ -391,40 +391,6 @@ from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
     const dbRef = ref(database, 'hospitals_data');
-	// ฟังก์ชันสำหรับรีเซ็ตค่า Stroke
-// ฟังก์ชันสำหรับรีเซ็ตค่า Stroke
-function resetStrokeDataAt0800() {
-    const now = new Date();
-    // เช็คว่าเป็นเวลา 08:00 น. (วินาทีที่ 0-5)
-    if (now.getHours() === 8 && now.getMinutes() === 0 && now.getSeconds() < 5) {
-        
-        console.log("เริ่มดำเนินการรีเซ็ตค่า Stroke Fast Track...");
-
-        // สร้าง Object เพื่ออัปเดตข้อมูลใน Firebase
-        let updates = {};
-        hospitals.forEach(h => {
-            updates[`hospitals_data/${h.id}/stroke_walkin`] = 0;
-            updates[`hospitals_data/${h.id}/stroke_ems`] = 0;
-            updates[`hospitals_data/${h.id}/strokeUpdate`] = "-";
-            updates[`hospitals_data/${h.id}/strokeTimestamp`] = 0;
-        });
-
-        // ส่งคำสั่งอัปเดตไปที่ Firebase
-        update(ref(database), updates).then(() => {
-            console.log("รีเซ็ตค่า Stroke เรียบร้อยแล้ว");
-        }).catch((error) => {
-            console.error("เกิดข้อผิดพลาดในการรีเซ็ต: ", error);
-        });
-    }
-}
-
-// ตรวจสอบทุกๆ 5 วินาที เพื่อดูว่าถึงเวลา 08:00:00 หรือยัง
-setInterval(resetStrokeDataAt0800, 5000);
-// ตรวจสอบทุกๆ 5 วินาที เพื่อดูว่าถึงเวลา 08:00:00 หรือยัง
-setInterval(resetStrokeDataAt0800, 5000);
-	
-	
-	
 	
 
     const defaultHospitals = [
@@ -688,9 +654,7 @@ onValue(dbRef, (snapshot) => {
                 h.strokeUpdate = timeString;
                 h.strokeTimestamp = d.getTime(); 
             }
-            if (!isBedChanged && !isStrokeChanged) {
-                h.timestamp = d.getTime();
-            }
+           
         }
     }
 
@@ -847,14 +811,14 @@ onValue(dbRef, (snapshot) => {
         });
     }
 
-    window.save = function(id) {
-    updateLocalData(id); // ตรวจสอบว่าฟังก์ชันนี้ดึงค่าจาก Input มาเซตเป็นค่าปัจจุบันจริงๆ ไม่ใช่การ +=
+   window.save = function(id) {
+    updateLocalData(id); 
     const h = hospitals.find(x => x.id === id);
+    if (!h) return;
 
-    // 1. บันทึกข้อมูลสรุปหลัก (หน้า Dashboard)
+
     set(dbRef, hospitals)
         .then(() => {
-            // 2. บันทึก Log ประวัติ (ทำเฉพาะเมื่อบันทึกหลักสำเร็จ)
             return push(ref(database, 'stroke_history'), {
                 hospital: h.name,
                 walkin: h.stroke_walkin || 0,
@@ -865,20 +829,21 @@ onValue(dbRef, (snapshot) => {
             });
         })
         .then(() => {
-            // 3. แสดงผลความสำเร็จ
+            // กระพริบแค่ปุ่มที่กด ไม่ต้องสั่ง render ใหม่ทั้งหน้าจอ
             let btn = document.getElementById(`btn-${id}`);
-            btn.classList.add('btn-pulse');
-            setTimeout(() => btn.classList.remove('btn-pulse'), 500);
+            if (btn) {
+                btn.classList.add('btn-pulse');
+                setTimeout(() => btn.classList.remove('btn-pulse'), 500);
+            }
+            Swal.fire({ title: 'บันทึกสำเร็จ', icon: 'success', timer: 1000, showConfirmButton: false });
             
-            Swal.fire({ title: 'บันทึกสำเร็จ', icon: 'success', timer: 1500, showConfirmButton: false });
-            filterHospitals('save');
+            // ลบบรรทัด filterHospitals('save') หรือ render() ออกจากตรงนี้
+            // ปล่อยให้ onValue ด้านล่างทำงานเอง
         })
         .catch((err) => {
-            console.error("Firebase Save Error: ", err);
-            Swal.fire({ title: 'บันทึกไม่สำเร็จ', text: 'โปรดตรวจสอบการเชื่อมต่อ', icon: 'error' });
+            Swal.fire({ title: 'บันทึกไม่สำเร็จ', icon: 'error' });
         });
 }
-
     window.filterHospitals = function(source) {
         // หากไม่มีบทบาทผู้ใช้ ให้ระบบหยุดทำงาน
         if (!currentUserRole) return;
@@ -920,12 +885,30 @@ onValue(dbRef, (snapshot) => {
     // สิทธิ์แอดมิน 1669: เห็นทุก รพ. และกรองตามคำค้นหาได้
     document.getElementById('summaryBtn').style.display = 'inline-block';
     document.getElementById('historyBtn').style.display = 'inline-block'; // เพิ่มบรรทัดนี้
-
     document.getElementById('hospitalDropdown').style.display = 'inline-block';
     document.getElementById('searchInput').style.display = 'inline-block';
 
     filtered = hospitals.filter(h => h.name.toLowerCase().includes(val));
-    filtered.sort((a, b) => b.timestamp - a.timestamp);
+filtered.sort((a, b) => {
+    const aLatest = Math.max(
+        a.timestamp || 0,
+        a.strokeTimestamp || 0
+    );
+
+    const bLatest = Math.max(
+        b.timestamp || 0,
+        b.strokeTimestamp || 0
+    );
+
+    // เรียงตามเวลาล่าสุด
+    if (bLatest !== aLatest) {
+        return bLatest - aLatest;
+    }
+
+    // ถ้าเวลาเท่ากัน ให้ใช้ id ตัดสิน
+    return b.id - a.id;
+});
+	
 } else {
     // สิทธิ์โรงพยาบาลทั่วไป
     document.getElementById('summaryBtn').style.display = 'none';
