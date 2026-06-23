@@ -30,7 +30,7 @@
             if(!d || m === "" || !y) return;
 
             const snapshot = await get(ref(db, `logs/log-${d}-${m}-${y}`));
-            document.querySelectorAll('.shift-row input, .shift-row select, .shift-row textarea').forEach(el => el.value = "");
+            document.querySelectorAll('.shift-row input, .shift-row select').forEach(el => el.value = "");
 
             if (snapshot.exists()) {
                 const data = snapshot.val();
@@ -47,7 +47,9 @@
                         row.querySelector('.s-dc').value = data[i].stats?.dc || "";
                         row.querySelector('.s-home').value = data[i].stats?.home || "";
                         row.querySelector('.s-death').value = data[i].stats?.death || "";
-                        row.querySelector('.s-summary').value = data[i].stats?.summary || "";
+                        row.querySelector('.s-als').value = data[i].stats?.als || "";
+                        row.querySelector('.s-prank').value = data[i].stats?.prank || "";
+                        row.querySelector('.s-other').value = data[i].stats?.other || "";
                     }
                 });
             }
@@ -72,7 +74,9 @@
                     dc: row.querySelector('.s-dc').value,
                     home: row.querySelector('.s-home').value,
                     death: row.querySelector('.s-death').value,
-                    summary: row.querySelector('.s-summary').value
+                    als: row.querySelector('.s-als').value,
+                    prank: row.querySelector('.s-prank').value,
+                    other: row.querySelector('.s-other').value
                 }
             }));
             await set(ref(db, `logs/log-${dayVal}-${monthVal}-${yearVal}`), allData);
@@ -117,6 +121,7 @@
     <datalist id="staffData"></datalist>
 
     <script>
+        // ... (ส่วนค่าคงที่และส่วนสร้าง UI เหมือนเดิม)
         const staffList = ["นายวิระบูรณ์ แก่นภักดี", "นางสาวนริศรา มะลิหอม", "นางสาวเบญจมาศ ชามาตย์", "นางสาวรัตติยา พันชัย", "นายนิกร วงศ์กำแหง", "นางสาวกุณฑิกา ส่งเสริม", "นายกฤษกร นางาม", "นางสาวเกตน์นิภา การะวัตร์", "นายชุติณัฐ มหิษานนท์", "นางสาวเสาวลักษณ์ ชารีโสม", "นางสาวนุชจรินทร์ รักษารอด", "นางสาวหทัยชนก มะตัน", "นางสาวสิริกานต์ สีแดง", "นางสาววิรากานต์ วงค์อินทร์", "นางสาวสุพัฒตา อุทุมพันธ์", "นางสาววรรณนิภา ดวงคำ", "นางสาวอาจานี มาสพันธ์", "นางสาวกาญจนา ราษี", "นางมลฤดี จันทะพา", "นางสาวพรพิมล จันทา", "นางสาวฉัตรฐริกา คุณมี", "นางสาวณัฐพัชร์ สมใสวิวิตรกุล", "นางสาวกัญญาณัฐ สมบูรณ์", "นางสาวรัตน์สุดา แสงสุข", "นางสาวญานิพร วงศ์เจริญ", "นางสาวภรณ์ทิพย์ ทิพประมวล", "นายเมธานันท์ เจริญชัย", "นายณัฐพงศ์ มีศรี", "นางสาวมาฆสิริ หอธรรม", "นายบริพัตร กุประดิษฐ์", "นายธนรัช เดชกังวาล", "นายอภิชาติ ดุมใหม่", "นางเพ็ญศรี สุวรรณกูฎ", "นางธนัชพร สมาทอง", "นางสาวพัชรี บุญชิต", "นางสาวว​ราภรณ์​ ปัจฉาพร", "นางอินทิรา นิธิวัฒนพงษ์", "นายอุดม พงษ์พิละ", "นางสาวทิพยวัลย์ สุทธาคง", "นางสาวเบ็ญจวรรณ พรมบุตร", "นายคม พันเพียง", "นางรัศมี สืบบุตร", "นางสาววรุณรัตน์ ชนะศรีรัตนกุล", "นางสาวจุติมา สมบูรณ์", "นางสาวฤทัยทิพย์ ดวงศรี", "นายธีระศักดิ์ การแก้ว", "นางสาวจันทร์จิรา จันทร์สว่าง", "นางสาวพัชรี พลกันยา", "นางสาวเบญจวรรณ อ่อนอรรถ", "นายแพทย์ชัยพร บุญศรี", "แพทย์หญิงวรรษพร อมรไชย"];
         const radioStaff = ["นายณัฐพงศ์ มีศรี", "นางสาวมาฆสิริ หอธรรม", "นายบริพัตร กุประดิษฐ์", "นายธนรัช เดชกังวาล"];
         const superVisors = ["นางเพ็ญศรี สุวรรณกูฎ", "นางธนัชพร สมาทอง", "นางสาวเบญจวรรณ อ่อนอรรถทอง", "นางสาวจันทร์จิรา จันทร์สว่าง", "นางสาวพัชรี พลกันยา"];
@@ -140,7 +145,6 @@
             div.innerHTML = `
                 <div class="bg-blue-50 p-4 cursor-pointer flex justify-between items-center" onclick="this.nextElementSibling.classList.toggle('hidden')">
                     <h2 class="font-bold text-lg text-blue-900">ประจำเวร${shift}</h2>
-                    <span class="text-sm font-bold text-blue-600 no-print">คลิกเพื่อดูสถิติและสรุป</span>
                 </div>
                 <div class="p-6 space-y-6 hidden">
                     <div class="grid grid-cols-2 gap-4">
@@ -153,15 +157,17 @@
                         ${[...Array(9)].map((_, i) => `<input list="staffData" class="mc-input border p-2 rounded w-full" placeholder="${i+1}. ค้นหาชื่อ...">`).join('')}
                     </div>
                     <div class="border-t pt-4 bg-gray-50 p-4 rounded">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                            <div><label class="block font-bold text-gray-700 mb-1">ยอดผู้ใช้บริการทั้งหมด (ราย)</label><input type="number" class="s-total border p-2 rounded w-full" placeholder="ระบุจำนวน..."></div>
-                            <div><label class="block font-bold text-gray-700 mb-1">ยอดให้คำปรึกษาทางโทรศัพท์ (ราย)</label><input type="number" class="s-counsel border p-2 rounded w-full" placeholder="ระบุจำนวน..."></div>
-                            <div><label class="block font-bold text-gray-700 mb-1">ยอดอุบัติเหตุทางจราจร (ราย)</label><input type="number" class="s-traffic border p-2 rounded w-full" placeholder="ระบุจำนวน..."></div>
-                            <div><label class="block font-bold text-gray-700 mb-1">ยอด D/C by phone (ราย)</label><input type="number" class="s-dc border p-2 rounded w-full" placeholder="ระบุจำนวน..."></div>
-                            <div><label class="block font-bold text-gray-700 mb-1">ยอดโครงการพาคนรักกลับบ้าน (ราย)</label><input type="number" class="s-home border p-2 rounded w-full" placeholder="ระบุจำนวน..."></div>
-                            <div><label class="block font-bold text-gray-700 mb-1">ยอดผู้เสียชีวิตทั้งหมด (ราย)</label><input type="number" class="s-death border p-2 rounded w-full" placeholder="ระบุจำนวน..."></div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                            <div><label class="block font-bold text-gray-700 mb-1">ยอดผู้ใช้บริการ (ราย)</label><input type="number" class="s-total border p-2 rounded w-full" placeholder="0"></div>
+                            <div><label class="block font-bold text-gray-700 mb-1">ยอดให้คำปรึกษา (ราย)</label><input type="number" class="s-counsel border p-2 rounded w-full" placeholder="0"></div>
+                            <div><label class="block font-bold text-gray-700 mb-1">ยอดอุบัติเหตุ (ราย)</label><input type="number" class="s-traffic border p-2 rounded w-full" placeholder="0"></div>
+                            <div><label class="block font-bold text-gray-700 mb-1">ยอด D/C by phone (ราย)</label><input type="number" class="s-dc border p-2 rounded w-full" placeholder="0"></div>
+                            <div><label class="block font-bold text-gray-700 mb-1">ยอดพาคนรักกลับบ้าน (ราย)</label><input type="number" class="s-home border p-2 rounded w-full" placeholder="0"></div>
+                            <div><label class="block font-bold text-gray-700 mb-1">ยอดผู้เสียชีวิต (ราย)</label><input type="number" class="s-death border p-2 rounded w-full" placeholder="0"></div>
+                            <div><label class="block font-bold text-gray-700 mb-1">ALS (ราย)</label><input type="number" class="s-als border p-2 rounded w-full" placeholder="0"></div>
+                            <div><label class="block font-bold text-gray-700 mb-1">สายกวน (ราย)</label><input type="number" class="s-prank border p-2 rounded w-full" placeholder="0"></div>
+                            <div><label class="block font-bold text-gray-700 mb-1">อื่นๆ (ราย)</label><input type="number" class="s-other border p-2 rounded w-full" placeholder="0"></div>
                         </div>
-                        <div class="mt-4"><label class="block font-bold text-gray-700 mb-1">สรุปเหตุการณ์ทั่วไป</label><textarea class="s-summary w-full border p-2 rounded h-20" placeholder="พิมพ์สรุปรายละเอียด..."></textarea></div>
                     </div>
                 </div>`;
             container.appendChild(div);
