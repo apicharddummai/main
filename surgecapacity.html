@@ -325,50 +325,7 @@
 
     <div id="app" class="grid-container"></div>
 </div>
-<script>
-    // 1. เก็บฟังก์ชันไว้ที่เดิม (ไม่ต้องเปลี่ยน)
-// --- วางไว้ในตำแหน่งเดียวกับที่เคยวางฟังก์ชันรีเซ็ต ---
-function checkAndResetDailyServerSide() {
-    const db = firebase.database();
-    
-    // 1. ดึงข้อมูลสถานะการรีเซ็ตจาก Firebase
-    db.ref("system_status/lastResetDate").once("value").then((snapshot) => {
-        const lastReset = snapshot.val();
-        const today = new Date();
-        // แปลงเวลาให้เป็นไทย (GMT+7)
-        const offset = 7 * 60 * 60 * 1000;
-        const thaiDate = new Date(today.getTime() + offset);
-        const todayDateString = thaiDate.toISOString().split('T')[0]; // ได้เป็น "2026-06-22"
 
-        // 2. เช็คเงื่อนไข: วันนี้ยังไม่รีเซ็ต และเวลาเลย 8 โมงเช้าแล้ว
-        if (lastReset !== todayDateString && thaiDate.getHours() >= 8) {
-            
-            // 3. ทำการรีเซ็ตข้อมูลทั้งหมด
-            db.ref("hospitals").once("value").then((snap) => {
-                let currentData = snap.val();
-                if (currentData) {
-                    currentData.forEach(h => {
-                        h.stroke_walkin = 0;
-                        h.stroke_ems = 0;
-                        h.strokeUpdate = "-";
-                        h.strokeTimestamp = 0;
-                    });
-                    
-                    // อัปเดตข้อมูลเป็น 0 ทั้งหมด + บันทึกวันที่รีเซ็ตใน Firebase
-                    const updates = {};
-                    updates["hospitals"] = currentData;
-                    updates["system_status/lastResetDate"] = todayDateString;
-                    
-                    db.ref().update(updates).then(() => {
-                        console.log("รีเซ็ตสำเร็จและบันทึกลง Server แล้ว");
-                        location.reload(); // ให้หน้าเว็บโหลดใหม่หลังรีเซ็ต
-                    });
-                }
-            });
-        }
-    });
-}
-</script>
 
 
 <script type="module">
@@ -441,38 +398,7 @@ onValue(dbRef, (snapshot) => {
         hospitals = [...defaultHospitals];
     }
 
-    // --- ระบบรีเซ็ตอัตโนมัติ (Server-Side Logic) ---
-    const now = new Date();
-    const offset = 7 * 60 * 60 * 1000; // เวลาไทย
-    const thaiDate = new Date(now.getTime() + offset);
-    const todayStr = thaiDate.toISOString().split('T')[0]; // รูปแบบ YYYY-MM-DD
 
-    // ดึงค่าวันที่ล่าสุดที่รีเซ็ตจาก Firebase (กิ่ง system_status)
-    const resetRef = ref(database, 'system_status/lastResetDate');
-    onValue(resetRef, (resetSnap) => {
-        const lastReset = resetSnap.val();
-
-        // เงื่อนไข: ถ้าเลย 8 โมงเช้า และวันที่ล่าสุดไม่ตรงกับวันนี้
-        if (thaiDate.getHours() >= 8 && lastReset !== todayStr) {
-            
-            // ทำการรีเซ็ตข้อมูล
-            hospitals.forEach(h => {
-                h.stroke_walkin = 0;
-                h.stroke_ems = 0;
-                h.strokeUpdate = "-";
-                h.strokeTimestamp = 0;
-            });
-
-            // อัปเดตข้อมูลโรงพยาบาล และ บันทึกวันที่รีเซ็ตในกิ่ง system_status
-            update(ref(database), {
-                'hospitals_data': hospitals,
-                'system_status/lastResetDate': todayStr
-            }).then(() => {
-                console.log("ระบบรีเซ็ตข้อมูลเป็น 0 เรียบร้อยแล้ว (วันที่ " + todayStr + ")");
-            });
-        }
-    }, { onlyOnce: true });
-    // --- จบระบบรีเซ็ต ---
 
     initLoginDropdown();
     initDropdown();
