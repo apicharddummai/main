@@ -46,8 +46,10 @@
                     if (data[i]) {
                         row.querySelector('.doc-select').value = data[i].doc || "";
                         row.querySelector('.sup-select').value = data[i].sup || "";
-                        row.querySelector('.co-input').value = data[i].co || "";
-                       row.querySelector('.radio2-select').value = data[i].radio2 || "";
+                       row.querySelector('.co-input').value = data[i].co || "";
+
+row.querySelector('.radio-select').value = data[i].radio || "";
+row.querySelector('.radio2-select').value = data[i].radio2 || "";
                         row.querySelectorAll('.mc-input').forEach((input, j) => input.value = (data[i].mc && data[i].mc[j]) ? data[i].mc[j] : "");
                         row.querySelector('.s-total').value = data[i].stats?.total || "";
                         row.querySelector('.s-counsel').value = data[i].stats?.counsel || "";
