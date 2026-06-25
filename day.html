@@ -94,17 +94,20 @@ radio2: row.querySelector('.radio2-select').value,
             alert("บันทึกข้อมูลวันที่ " + dayVal + "/" + (parseInt(monthVal)+1) + "/" + yearVal + " เรียบร้อยแล้วครับ");
         };
 
-        window.changeDate = (delta) => {
-            let d = parseInt(document.getElementById('day').value);
-            let m = parseInt(document.getElementById('month').value);
-            let y = parseInt(document.getElementById('year').value) - 543;
-            let date = new Date(y, m, d);
-            date.setDate(date.getDate() + delta);
-            document.getElementById('day').addEventListener('change', loadData);
-document.getElementById('month').addEventListener('change', loadData);
-document.getElementById('year').addEventListener('change', loadData);
-            window.loadData();
-        };
+       window.changeDate = (delta) => {
+    let d = parseInt(document.getElementById('day').value);
+    let m = parseInt(document.getElementById('month').value);
+    let y = parseInt(document.getElementById('year').value) - 543;
+
+    let date = new Date(y, m, d);
+    date.setDate(date.getDate() + delta);
+
+    document.getElementById('day').value = date.getDate();
+    document.getElementById('month').value = date.getMonth();
+    document.getElementById('year').value = date.getFullYear() + 543;
+
+    loadData();
+};
     </script>
 </head>
 <body class="bg-gray-100 p-4">
