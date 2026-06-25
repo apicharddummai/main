@@ -49,7 +49,7 @@
                        row.querySelector('.co-input').value = data[i].co || "";
 
 row.querySelector('.radio-select').value = data[i].radio || "";
-row.querySelector('.radio2-select').value = data[i].radio2 || "";
+row.querySelector('.radio2-select').value = data[i].radio2 || data[i].radio_old || "";
                         row.querySelectorAll('.mc-input').forEach((input, j) => input.value = (data[i].mc && data[i].mc[j]) ? data[i].mc[j] : "");
                         row.querySelector('.s-total').value = data[i].stats?.total || "";
                         row.querySelector('.s-counsel').value = data[i].stats?.counsel || "";
@@ -100,9 +100,9 @@ radio2: row.querySelector('.radio2-select').value,
             let y = parseInt(document.getElementById('year').value) - 543;
             let date = new Date(y, m, d);
             date.setDate(date.getDate() + delta);
-            document.getElementById('day').value = date.getDate();
-            document.getElementById('month').value = date.getMonth();
-            document.getElementById('year').value = date.getFullYear() + 543;
+            document.getElementById('day').addEventListener('change', loadData);
+document.getElementById('month').addEventListener('change', loadData);
+document.getElementById('year').addEventListener('change', loadData);
             window.loadData();
         };
     </script>
@@ -134,7 +134,7 @@ radio2: row.querySelector('.radio2-select').value,
     <script>
         const staffList = ["นายวิระบูรณ์ แก่นภักดี", "นางสาวนริศรา มะลิหอม", "นางสาวเบญจมาศ ชามาตย์", "นางสาวรัตติยา พันชัย", "นายนิกร วงศ์กำแหง", "นางสาวกุณฑิกา ส่งเสริม", "นายกฤษกร นางาม", "นางสาวเกตน์นิภา การะวัตร์", "นายชุติณัฐ มหิษานนท์", "นางสาวเสาวลักษณ์ ชารีโสม", "นางสาวนุชจรินทร์ รักษารอด", "นางสาวหทัยชนก มะตัน", "นางสาวสิริกานต์ สีแดง", "นางสาววิรากานต์ วงค์อินทร์", "นางสาวสุพัฒตา อุทุมพันธ์", "นางสาววรรณนิภา ดวงคำ", "นางสาวอาจานี มาสพันธ์", "นางสาวกาญจนา ราษี", "นางมลฤดี จันทะพา", "นางสาวพรพิมล จันทา", "นางสาวฉัตรฐริกา คุณมี", "นางสาวณัฐพัชร์ สมใสวิวิตรกุล", "นางสาวกัญญาณัฐ สมบูรณ์", "นางสาวรัตน์สุดา แสงสุข", "นางสาวญานิพร วงศ์เจริญ", "นางสาวภรณ์ทิพย์ ทิพประมวล", "นายเมธานันท์ เจริญชัย", "นายณัฐพงศ์ มีศรี", "นางสาวมาฆสิริ หอธรรม", "นายบริพัตร กุประดิษฐ์", "นายธนรัช เดชกังวาล", "นายอภิชาติ ดุมใหม่", "นางเพ็ญศรี สุวรรณกูฎ", "นางธนัชพร สมาทอง", "นางสาวพัชรี บุญชิต", "นางสาวว​ราภรณ์​ ปัจฉาพร", "นางอินทิรา นิธิวัฒนพงษ์", "นายอุดม พงษ์พิละ", "นางสาวทิพยวัลย์ สุทธาคง", "นางสาวเบ็ญจวรรณ พรมบุตร", "นายคม พันเพียง", "นางรัศมี สืบบุตร", "นางสาววรุณรัตน์ ชนะศรีรัตนกุล", "นางสาวจุติมา สมบูรณ์", "นางสาวฤทัยทิพย์ ดวงศรี", "นายธีระศักดิ์ การแก้ว", "นางสาวจันทร์จิรา จันทร์สว่าง", "นางสาวพัชรี พลกันยา", "นางสาวเบญจวรรณ อ่อนอรรถ", "นายแพทย์ชัยพร บุญศรี", "แพทย์หญิงวรรษพร อมรไชย"];
         const radioStaff = ["นายณัฐพงศ์ มีศรี", "นางสาวมาฆสิริ หอธรรม", "นายบริพัตร กุประดิษฐ์", "นายธนรัช เดชกังวาล"];
-        const superVisors = ["นางเพ็ญศรี สุวรรณกูฎ", "นางธนัชพร สมาทอง", "นางสาวเบญจวรรณ อ่อนอรรถทอง", "นางสาวจันทร์จิรา จันทร์สว่าง", "นางสาวพัชรี พลกันยา"];
+        const superVisors = ["นางเพ็ญศรี สุวรรณกูฎ", "นางธนัชพร สมาทอง", "นางสาวเบญจวรรณ อ่อนอรรถ", "นางสาวจันทร์จิรา จันทร์สว่าง", "นางสาวพัชรี พลกันยา"];
         const doctors = ["นายแพทย์ชัยพร บุญศรี", "แพทย์หญิงวรรษพร อมรไชย"];
 
         staffList.forEach(s => { let o = document.createElement('option'); o.value = s; document.getElementById('staffData').appendChild(o); });
@@ -220,9 +220,20 @@ setInterval(() => {
     });
 }, 300);
 </script>
+
+
+
+
 	
-	
-	
+	<script>
+window.addEventListener('load', () => {
+    loadData();
+
+    document.getElementById('day').addEventListener('change', loadData);
+    document.getElementById('month').addEventListener('change', loadData);
+    document.getElementById('year').addEventListener('change', loadData);
+});
+</script>
 	
 </body>
 </html>
