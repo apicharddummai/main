@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ระบบยืม-คืนอุปกรณ์ ศูนย์รับแจ้งเหตุและสั่งการ จังหวัดอุบลราชธานี</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&display=swap');
+        body { font-family: 'Sarabun', sans-serif; background: #f1f5f9; font-size: 14px; margin: 0; padding: 0; }
+        .container-fluid { width: 95%; margin: 0 auto; padding-top: 1rem; }
+        .input-box { padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; width: 100%; }
+        .qty-box { width: 60px; padding: 2px; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; }
+        .btn-mini { padding: 4px 12px; font-size: 12px; border-radius: 4px; cursor: pointer; }
+        .pagination-btn { padding: 4px 12px; border: 1px solid #cbd5e1; border-radius: 4px; margin: 0 2px; cursor: pointer; background: white; font-size: 12px; }
+        .active-page { background: #4f46e5; color: white; border-color: #4f46e5; }
+        .status-border-borrowing { border-left: 5px solid #ef4444; } 
+        .status-border-returned { border-left: 5px solid #22c55e; }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <h2 class="text-2xl font-bold mb-4 text-center text-slate-800">📦 ระบบยืม-คืนอุปกรณ์ ศูนย์รับแจ้งเหตุและสั่งการ จังหวัดอุบลราชธานี</h2>
+    <div class="bg-white p-6 rounded-lg shadow-sm border mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div><label class="text-xs text-gray-500 font-bold">ผู้ขอยืมอุปกรณ์</label><input id="giver" class="input-box"></div>
+            <div><label class="text-xs text-gray-500 font-bold">ผู้ให้ยืมอุปกรณ์</label><input id="borrower" class="input-box"></div>
+            <div><label class="text-xs text-gray-500 font-bold">หมายเหตุ</label><input id="note" class="input-box" placeholder="ระบุวัตถุประสงค์..."></div>
+        </div>
+
+        <div id="equip-box" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-4 max-h-64 overflow-y-auto p-2 border rounded bg-slate-50">
+            <label class="flex items-center justify-between border p-2 rounded bg-white shadow-sm text-xs"><span class="flex items-center gap-2"><input type="checkbox" value="ไม้ดาม" class="item"><img src="https://i.postimg.cc/LXkjTLk2/images.jpg" class="w-8 h-8 rounded object-contain flex-shrink-0 bg-white">ไม้ดาม</span><span>จำนวน <input type="number" class="qty-box" placeholder="0"></span></label>
+            <label class="flex items-center justify-between border p-2 rounded bg-white shadow-sm text-xs"><span class="flex items-center gap-2"><input type="checkbox" value="เครื่อง AED" class="item"><img src="https://i.postimg.cc/P5hJW93Y/8wccrp.jpg" class="w-8 h-8 rounded object-contain flex-shrink-0 bg-white">เครื่อง AED</span><span>จำนวน <input type="number" class="qty-box" placeholder="0"></span></label>
+            <label class="flex items-center justify-between border p-2 rounded bg-white shadow-sm text-xs"><span class="flex items-center gap-2"><input type="checkbox" value="หุ่น CPR ครึ่งตัว" class="item"><img src="https://i.postimg.cc/K8gfTKWv/Brayden-Manikins.jpg" class="w-8 h-8 rounded object-contain flex-shrink-0 bg-white">หุ่น CPR ครึ่งตัว</span><span>จำนวน <input type="number" class="qty-box" placeholder="0"></span></label>
+            <label class="flex items-center justify-between border p-2 rounded bg-white shadow-sm text-xs"><span class="flex items-center gap-2"><input type="checkbox" value="หุ่น Laerdal" class="item"><img src="https://i.postimg.cc/rsc3n1v9/Resusci-Anne-Laerdal-Manikins.jpg" class="w-8 h-8 rounded object-contain flex-shrink-0 bg-white">หุ่น Laerdal</span><span>จำนวน <input type="number" class="qty-box" placeholder="0"></span></label>
+            <label class="flex items-center justify-between border p-2 rounded bg-white shadow-sm text-xs"><span class="flex items-center gap-2"><input type="checkbox" value="TQ : Tourniquet" class="item"><img src="https://i.postimg.cc/6pzSH40f/sadd.jpg" class="w-8 h-8 rounded object-contain flex-shrink-0 bg-white">TQ : Tourniquet</span><span>จำนวน <input type="number" class="qty-box" placeholder="0"></span></label>
+            <label class="flex items-center justify-between border p-2 rounded bg-white shadow-sm text-xs"><span class="flex items-center gap-2"><input type="checkbox" value="Pelvic Binder" class="item"><img src="https://i.postimg.cc/y6QHN596/pelvic.jpg" class="w-8 h-8 rounded object-contain flex-shrink-0 bg-white">Pelvic Binder</span><span>จำนวน <input type="number" class="qty-box" placeholder="0"></span></label>
+            <label class="flex items-center justify-between border p-2 rounded bg-white shadow-sm text-xs"><span class="flex items-center gap-2"><input type="checkbox" value="หุ่น AMBU ใหญ่" class="item"><img src="https://i.postimg.cc/VN23Mrmd/s.png" class="w-8 h-8 rounded object-contain flex-shrink-0 bg-white">หุ่น AMBU ใหญ่</span><span>จำนวน <input type="number" class="qty-box" placeholder="0"></span></label>
+            <label class="flex items-center justify-between border p-2 rounded bg-white shadow-sm text-xs"><span class="flex items-center gap-2"><input type="checkbox" value="Spinal board" class="item"><img src="https://i.postimg.cc/Kv1DXkxg/message-Image-1743569955674.jpg" class="w-8 h-8 rounded object-contain flex-shrink-0 bg-white">Spinal board</span><span>จำนวน <input type="number" class="qty-box" placeholder="0"></span></label>
+            <label class="flex items-center justify-between border p-2 rounded bg-white shadow-sm text-xs"><span class="flex items-center gap-2"><input type="checkbox" value="วิทยุสื่อสาร Handy" class="item"><img src="https://i.postimg.cc/vm3HrvDg/427839-0.jpg" class="w-8 h-8 rounded object-contain flex-shrink-0 bg-white">วิทยุสื่อสาร Handy</span><span>จำนวน <input type="number" class="qty-box" placeholder="0"></span></label>
+            <label class="flex items-center justify-between border p-2 rounded bg-white shadow-sm text-xs"><span class="flex items-center gap-2"><input type="checkbox" value="วิทยุสื่อสาร Mobile" class="item"><img src="https://i.postimg.cc/L5hqYbTq/427838-0.jpg" class="w-8 h-8 rounded object-contain flex-shrink-0 bg-white">วิทยุสื่อสาร Mobile</span><span>จำนวน <input type="number" class="qty-box" placeholder="0"></span></label>
+            <label class="flex items-center justify-between border p-2 rounded bg-white shadow-sm text-xs"><span class="flex items-center gap-2"><input type="checkbox" value="อื่นๆ" class="item"><img src="https://i.postimg.cc/kgWmcv1z/fh.webp" class="w-8 h-8 rounded object-contain flex-shrink-0 bg-white">อื่นๆ</span><span>จำนวน <input type="number" class="qty-box" placeholder="0"></span></label>
+        </div>
+        <button onclick="addRecord()" class="bg-indigo-600 text-white w-full py-3 rounded-lg font-bold hover:bg-indigo-700">บันทึกการเบิก</button>
+    </div>
+
+    <div class="flex gap-2 mb-3">
+        <input type="date" id="searchDate" onchange="currentPage=1; render()" class="input-box text-sm w-48">
+        <button onclick="clearSearch()" class="bg-slate-200 px-6 py-1 rounded-lg font-bold text-sm">ล้างวันที่</button>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+        <table class="w-full text-left">
+            <thead class="bg-slate-100 text-slate-500 text-xs uppercase">
+                <tr><th class="p-4">รายละเอียดรายการ</th><th class="p-4">สถานะ</th><th class="p-4 text-center">จัดการ</th></tr>
+            </thead>
+            <tbody id="list" class="divide-y text-sm"></tbody>
+        </table>
+    </div>
+    <div id="pagination" class="flex justify-center mt-4 mb-10 gap-1"></div>
+</div>
+
+<script>
+    // Firebase Setup
+   // แก้ตรง databaseURL ให้ถูกต้องตามรูปที่ 2 ของคุณครับ
+const firebaseConfig = {
+    apiKey: "AIzaSyCPdTUYPX3jvSX4RZqvjTchuhKnK6FNa5M",
+    authDomain: "equipment-93ead.firebaseapp.com",
+    databaseURL: "https://equipment-93ead-default-rtdb.asia-southeast1.firebasedatabase.app", 
+    projectId: "equipment-93ead",
+    storageBucket: "equipment-93ead.firebasestorage.app",
+    messagingSenderId: "621185195403",
+    appId: "1:621185195403:web:1077aca2d5c5a48bbb638e"
+};
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database().ref('equip_data');
+
+    let data = [];
+    let currentPage = 1;
+    const itemsPerPage = 10;
+
+    // Load Real-time
+    db.on('value', (snapshot) => {
+        const val = snapshot.val();
+        data = val ? Object.values(val).reverse() : [];
+        render();
+    });
+
+    function addRecord() {
+        let items = [];
+        document.querySelectorAll('#equip-box label').forEach(l => {
+            let chk = l.querySelector('.item');
+            let q = l.querySelector('.qty-box');
+            if(chk.checked) items.push({name: chk.value, qty: q.value || 1});
+        });
+        if(items.length === 0) return Swal.fire('แจ้งเตือน', 'กรุณาเลือกอุปกรณ์', 'warning');
+        
+        let id = Date.now();
+        let newRecord = { 
+            id: id, 
+            giver: document.getElementById('borrower').value,
+            borrower: document.getElementById('giver').value,
+            note: document.getElementById('note').value, 
+            items, 
+            status: "กำลังยืม", 
+            timeOut: new Date().toISOString().split('T')[0], 
+            timeDisplay: new Date().toLocaleString('th-TH'),
+            returnInfo: null 
+        };
+        db.child(id).set(newRecord);
+        
+        document.getElementById('giver').value = '';
+        document.getElementById('borrower').value = '';
+        document.getElementById('note').value = '';
+        document.querySelectorAll('.item').forEach(chk => chk.checked = false);
+        document.querySelectorAll('.qty-box').forEach(input => input.value = '');
+        Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', showConfirmButton: false, timer: 1000 });
+    }
+
+    function clearSearch() { document.getElementById('searchDate').value = ""; currentPage=1; render(); }
+    
+    function deleteItem(id) {
+        Swal.fire({ title: 'ลบรายการ?', icon: 'warning', showCancelButton: true, confirmButtonText: 'ลบ' }).then((r) => {
+            if(r.isConfirmed) db.child(id).remove();
+        });
+    }
+
+    function editItem(id) {
+        let item = data.find(i => i.id == id);
+        let html = `<div class="mb-3 text-left">หมายเหตุ: <input id="edit-note" class="w-full border p-1" value="${item.note || ''}"></div>` + 
+                   item.items.map((x,idx) => `<div class="mb-2 text-left">${x.name}: <input type="number" class="edit-qty border p-1 w-20" data-idx="${idx}" value="${x.qty}"></div>`).join('');
+        Swal.fire({ title: 'แก้ไขข้อมูล', html: html, preConfirm: () => {
+            item.note = document.getElementById('edit-note').value;
+            document.querySelectorAll('.edit-qty').forEach(el => item.items[el.dataset.idx].qty = el.value);
+            db.child(id).update(item);
+        }});
+    }
+
+    function returnItem(id) {
+        Swal.fire({ title: 'บันทึกการคืน', html: '<input id="u" class="swal2-input" placeholder="ผู้ส่งคืน">' + '<input id="r" class="swal2-input" placeholder="ผู้รับคืน">', preConfirm: () => ({ u: document.getElementById('u').value, r: document.getElementById('r').value }) }).then(res => {
+            if(res.isConfirmed && res.value.u) {
+                db.child(id).update({
+                    status: "คืนแล้ว",
+                    returnInfo: { sender: res.value.u, receiver: res.value.r, time: new Date().toLocaleString('th-TH') }
+                });
+            }
+        });
+    }
+
+    function undoReturn(id) {
+        db.child(id).update({ status: "กำลังยืม", returnInfo: null });
+    }
+
+    function render() {
+        const sDate = document.getElementById('searchDate').value;
+        const filtered = data.filter(i => !sDate || i.timeOut === sDate);
+        const totalPages = Math.ceil(filtered.length / itemsPerPage);
+        if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+        
+        const paginatedData = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+        const list = document.getElementById('list');
+        list.innerHTML = "";
+        paginatedData.forEach(i => {
+            let actionBtn = i.status === 'กำลังยืม' ? `<button onclick="returnItem(${i.id})" class="bg-emerald-500 text-white btn-mini hover:bg-emerald-600">คืน</button> <button onclick="editItem(${i.id})" class="bg-amber-500 text-white btn-mini hover:bg-amber-600">แก้</button>` : `<button onclick="undoReturn(${i.id})" class="bg-slate-500 text-white btn-mini">ยกเลิกคืน</button>`;
+            const statusClass = i.status === 'กำลังยืม' ? 'status-border-borrowing' : 'status-border-returned';
+            list.innerHTML += `
+                <tr class="${statusClass}">
+                    <td class="p-4">
+                        <div class="font-bold text-slate-800">${i.items.map(x => `${x.name}(จำนวน = ${x.qty})`).join(', ')}</div>
+                        <div class="text-xs text-gray-500">ผู้ขอยืมอุปกรณ์ : ${i.borrower} | ผู้ให้ยืมอุปกรณ์ : ${i.giver} | ${i.timeDisplay}</div>
+                        ${i.note ? `<div class="text-xs text-amber-600 italic">หมายเหตุ: ${i.note}</div>` : ""}
+                        ${i.returnInfo ? `<div class="text-xs text-green-600 font-bold">ผู้คืนอุปกรณ์ : ${i.returnInfo.sender} (ผู้รับคืนอุปกรณ์ : ${i.returnInfo.receiver}) | ${i.returnInfo.time}</div>` : ""}
+                    </td>
+                    <td class="p-4 text-xs font-bold ${i.status==='กำลังยืม'?'text-red-500':'text-green-600'}">${i.status}</td>
+                    <td class="p-4 text-center">${actionBtn} <button onclick="deleteItem(${i.id})" class="text-gray-400 hover:text-red-600 ml-2">🗑️</button></td>
+                </tr>`;
+        });
+        const pDiv = document.getElementById('pagination');
+        pDiv.innerHTML = "";
+        for(let j=1; j<=totalPages; j++) pDiv.innerHTML += `<button onclick="currentPage=${j}; render()" class="pagination-btn ${currentPage===j ? 'active-page' : ''}">${j}</button>`;
+    }
+</script>
+<script>
+    document.addEventListener('contextmenu', event => event.preventDefault());
+    document.onkeydown = function(e) {
+        if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73) || (e.ctrlKey && e.keyCode == 85) || (e.ctrlKey && e.keyCode == 83)) return false;
+    }
+</script>
+</body>
+</html>
