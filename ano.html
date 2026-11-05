@@ -10,6 +10,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+<!-- Firebase App & Realtime Database SDK (CDN) -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
 <style>
 :root {
     --bg-color: #eef4f8;
@@ -345,6 +349,7 @@ button.action-btn:hover {
 }
 
 .modal-btn {
+    text-align: center;
     height: 36px;
     padding: 0 18px;
     border: none;
@@ -397,6 +402,9 @@ button.action-btn:hover {
     <div class="column" id="rightColumn"></div>
 </div>
 
+<div class="footer">
+    ระบบบันทึกข้อมูลประชาสัมพันธ์ • ศูนย์รับแจ้งเหตุและสั่งการ จังหวัดอุบลราชธานี
+</div>
 
 <!-- Custom Popup Modal -->
 <div class="modal-overlay" id="customModal">
@@ -411,6 +419,22 @@ button.action-btn:hover {
 </div>
 
 <script>
+// --- ตั้งค่า Firebase Config ของคุณ ---
+const firebaseConfig = {
+    apiKey: "AIzaSyDjzWHTdlx5QnvBE4m8QWBosSWWnFQ3nLM",
+    authDomain: "ubon-announcement-board.firebaseapp.com",
+    databaseURL: "https://ubon-announcement-board-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "ubon-announcement-board",
+    storageBucket: "ubon-announcement-board.appspot.com",
+    messagingSenderId: "833819150242",
+    appId: "1:833819150242:web:e50d3cdac9fd83fdae54fb",
+    measurementId: "G-BPJYJYV9P6"
+};
+
+// เริ่มต้นใช้งาน Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
 // ล็อกคลิกขวา (View Source / Inspect)
 document.addEventListener('contextmenu', function(e) {
     e.preventDefault();
@@ -428,8 +452,7 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-const STORAGE_KEY = "public_board_20_v5";
-const THEME_KEY = "public_board_theme_v5";
+const THEME_KEY = "public_board_theme_v6";
 
 // โหลดธีมที่เคยบันทึกไว้
 if (localStorage.getItem(THEME_KEY) === "dark") {
@@ -444,25 +467,26 @@ function toggleDarkMode() {
     document.getElementById("themeToggleBtn").textContent = isDark ? "☀️" : "🌙";
 }
 
-let records = JSON.parse(
-    localStorage.getItem(STORAGE_KEY) || "null"
-);
+let records = Array.from({ length: 20 }, () => ({
+    message: "",
+    recorder: "",
+    time: "",
+    saveTimestamp: 0
+}));
 
-if (!Array.isArray(records) || records.length !== 20) {
-    records = Array.from({ length: 20 }, () => ({
-        message: "",
-        recorder: "",
-        time: "",
-        saveTimestamp: 0
-    }));
+// ฟังก์ชันบันทึกข้อมูลขึ้น Firebase
+function saveToFirebase() {
+    db.ref("board_records").set(records);
 }
 
-function saveStorage() {
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(records)
-    );
-}
+// ฟังข้อมูลจาก Firebase แบบ Real-time ทันทีเมื่อมีการเปลี่ยนแปลง
+db.ref("board_records").on("value", (snapshot) => {
+    const data = snapshot.val();
+    if (Array.isArray(data) && data.length === 20) {
+        records = data;
+    }
+    renderBoard();
+});
 
 // ฟังก์ชัน Popup Modal สวยๆ
 function showModal({ title, desc, icon = "✅", showCancel = false, onConfirm = null }) {
@@ -624,13 +648,7 @@ function renderBoard() {
                 saveTimestamp: timeStampValue
             };
 
-            saveStorage();
-            timestamp.textContent = "บันทึกเมื่อ: " + dateTime;
-
-            row.classList.add("flashing");
-            setTimeout(() => {
-                row.classList.remove("flashing");
-            }, TWO_MINUTES);
+            saveToFirebase(); // ซิงค์ข้อมูลขึ้น Firebase ทันที
 
             showModal({
                 title: "บันทึกสำเร็จ",
@@ -653,12 +671,7 @@ function renderBoard() {
                         saveTimestamp: 0
                     };
 
-                    saveStorage();
-                    messageInput.value = "";
-                    recorderInput.value = "";
-                    timestamp.textContent = "สถานะ: ยังไม่บันทึก";
-                    row.classList.remove("flashing");
-                    checkCancelWord();
+                    saveToFirebase(); // ซิงค์การลบข้อมูลขึ้น Firebase ทันที
                 }
             });
         });
@@ -670,8 +683,6 @@ function renderBoard() {
         }
     });
 }
-
-renderBoard();
 </script>
 
 </body>
