@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>บอร์ดประชาสัมพันธ์ศูนย์รับแจ้งเหตุและสั่งการ จังหวัดอุบลราชธานี</title>
+
+<!-- ดึงฟอนต์ Prompt จาก Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --bg-color: #eef4f8;
+    --card-bg: #ffffff;
+    --card-border: #dbe3eb;
+    --text-color: #1e293b;
+    --text-muted: #64748b;
+    --input-bg: #ffffff;
+    --input-border: #cbd5e1;
+    --title-gradient: linear-gradient(135deg, #07518b 0%, #0f766e 100%);
+    --btn-icon-bg: #ffffff;
+    --btn-icon-color: #07518b;
+    --btn-icon-border: #cbd8e5;
+    --flash-bg1: #ecfdf5;
+    --flash-border1: #6ee7b7;
+}
+
+/* ธีมโหมดมืด (Dark Mode) */
+body.dark-mode {
+    --bg-color: #0f172a;
+    --card-bg: #1e293b;
+    --card-border: #334155;
+    --text-color: #f8fafc;
+    --text-muted: #94a3b8;
+    --input-bg: #0f172a;
+    --input-border: #475569;
+    --title-gradient: linear-gradient(135deg, #38bdf8 0%, #2dd4bf 100%);
+    --btn-icon-bg: #1e293b;
+    --btn-icon-color: #38bdf8;
+    --btn-icon-border: #475569;
+    --flash-bg1: #064e3b;
+    --flash-border1: #059669;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 10px 14px;
+    font-family: 'Prompt', sans-serif;
+    background: var(--bg-color);
+    color: var(--text-color);
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden; /* ล็อกหน้าจอไม่ให้มี Scrollbar */
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* หัวข้อและกลุ่มปุ่มเครื่องมือ */
+.header-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    margin-bottom: 8px;
+    padding: 0 10px;
+    flex: 0 0 auto;
+}
+
+.header-title-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.header-logos {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.header-logo {
+    height: 36px;
+    width: auto;
+    object-fit: contain;
+}
+
+h1 {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+    background: var(--title-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 0.3px;
+}
+
+.header-actions {
+    position: absolute;
+    right: 0;
+    display: flex;
+    gap: 6px;
+}
+
+/* ปุ่มสลับธีม และ ปุ่มเปิดโหมดเต็มจอ */
+.icon-btn {
+    height: 36px;
+    width: 40px;
+    background: var(--btn-icon-bg);
+    color: var(--btn-icon-color);
+    border: 1px solid var(--btn-icon-border);
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    transition: all 0.2s ease;
+}
+
+.icon-btn:hover {
+    opacity: 0.85;
+    transform: translateY(-1px);
+}
+
+/* โครงสร้างตารางการ์ด ยืดเต็มพื้นที่แนวตั้ง 100% */
+.board {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 12px;
+    width: 100%;
+    flex: 1; /* ขยายเต็มแนวตั้งที่เหลือของจอ */
+    min-height: 0;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    height: 100%;
+}
+
+/* สไตล์การ์ดข้อความแต่ละรายการ - ขยายความสูงเต็มพื้นที่ */
+.topic {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    padding: 6px 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    transition: all 0.3s ease;
+    flex: 1; /* บังคับให้การ์ดขยายความสูงเท่าๆ กันจนเต็มจอ */
+    min-height: 0;
+}
+
+/* กรณีพิมพ์คำว่า "งด" */
+.topic.cancel-mode {
+    background-color: #fef2f2 !important;
+    border-color: #fca5a5 !important;
+}
+
+body.dark-mode .topic.cancel-mode {
+    background-color: #450a0a !important;
+    border-color: #991b1b !important;
+}
+
+.topic.cancel-mode input {
+    border-color: #f87171;
+}
+
+/* เอฟเฟกต์กระพริบเมื่อกดบันทึกสำเร็จ (2 นาที) */
+@keyframes flashRow {
+    0% { background-color: var(--flash-bg1); border-color: var(--flash-border1); }
+    50% { background-color: var(--card-bg); border-color: var(--card-border); }
+    100% { background-color: var(--flash-bg1); border-color: var(--flash-border1); }
+}
+
+.topic.flashing:not(.cancel-mode) {
+    animation: flashRow 1.5s infinite;
+}
+
+.topic-row-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    flex: 1;
+}
+
+input {
+    height: 100%;
+    max-height: 42px;
+    min-height: 32px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 6px;
+    padding: 0 10px;
+    font-family: 'Prompt', sans-serif;
+    font-size: 15px;
+    color: var(--text-color);
+    outline: none;
+    transition: border-color 0.2s ease, background-color 0.3s ease;
+    min-width: 0;
+}
+
+input:focus {
+    border-color: #07518b;
+}
+
+.message {
+    flex: 1;
+    width: 100%;
+}
+
+.recorder {
+    flex: 0 0 90px;
+    width: 90px;
+    text-align: center;
+}
+
+.timestamp {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    padding-left: 2px;
+    font-weight: 300;
+}
+
+/* ปุ่มควบคุม */
+button.action-btn {
+    height: 100%;
+    max-height: 42px;
+    min-height: 32px;
+    width: 52px;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Prompt', sans-serif;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: white;
+    cursor: pointer;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 52px;
+    transition: opacity 0.2s ease;
+}
+
+.save {
+    background: #16a34a;
+}
+
+.delete {
+    background: #dc2626;
+}
+
+button.action-btn:hover {
+    opacity: 0.88;
+}
+
+.footer {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 12px;
+    margin-top: 6px;
+    font-weight: 300;
+    flex: 0 0 auto;
+}
+
+/* Custom Popup Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 22px 20px;
+    width: 320px;
+    max-width: 90%;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    transform: scale(0.85);
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal-overlay.active .modal-card {
+    transform: scale(1);
+}
+
+.modal-icon {
+    font-size: 44px;
+    margin-bottom: 6px;
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 4px;
+}
+
+.modal-desc {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+}
+
+.modal-btn-group {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.modal-btn {
+    height: 36px;
+    padding: 0 18px;
+    border: none;
+    border-radius: 6px;
+    background: #07518b;
+    color: white;
+    font-family: 'Prompt', sans-serif;
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.modal-btn.cancel {
+    background: #64748b;
+}
+
+.modal-btn.danger {
+    background: #dc2626;
+}
+
+.modal-btn:hover {
+    opacity: 0.9;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header-container">
+    <div class="header-title-wrapper">
+        <div class="header-logos">
+            <img src="https://i.postimg.cc/g0JDzFrV/xbc.png" alt="Logo 1" class="header-logo">
+            <img src="https://i.postimg.cc/tgMz7SVd/sphch.png" alt="Logo 2" class="header-logo">
+        </div>
+        <h1>บอร์ดประชาสัมพันธ์ศูนย์รับแจ้งเหตุและสั่งการ จังหวัดอุบลราชธานี</h1>
+    </div>
+    <div class="header-actions">
+        <button class="icon-btn" id="themeToggleBtn" onclick="toggleDarkMode()" title="เปลี่ยนธีม มืด/สว่าง">
+            🌙
+        </button>
+        <button class="icon-btn" onclick="toggleFullScreen()" title="โหมดเต็มจอ">
+            ⛶
+        </button>
+    </div>
+</div>
+
+<div class="board">
+    <div class="column" id="leftColumn"></div>
+    <div class="column" id="rightColumn"></div>
+</div>
+
+
+<!-- Custom Popup Modal -->
+<div class="modal-overlay" id="customModal">
+    <div class="modal-card">
+        <div class="modal-icon" id="modalIcon">✅</div>
+        <div class="modal-title" id="modalTitle">แจ้งเตือน</div>
+        <div class="modal-desc" id="modalDesc">รายละเอียดข้อความ</div>
+        <div class="modal-btn-group" id="modalBtnGroup">
+            <button class="modal-btn" onclick="closeModal()">ตกลง</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ล็อกคลิกขวา (View Source / Inspect)
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+});
+
+// ล็อกปุ่มลัดต่างๆ (F12, Ctrl+U, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+S)
+document.addEventListener('keydown', function(e) {
+    if (
+        e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) ||
+        (e.ctrlKey && (e.key === 'U' || e.key === 'u' || e.key === 'S' || e.key === 's'))
+    ) {
+        e.preventDefault();
+        return false;
+    }
+});
+
+const STORAGE_KEY = "public_board_20_v5";
+const THEME_KEY = "public_board_theme_v5";
+
+// โหลดธีมที่เคยบันทึกไว้
+if (localStorage.getItem(THEME_KEY) === "dark") {
+    document.body.classList.add("dark-mode");
+    document.getElementById("themeToggleBtn").textContent = "☀️";
+}
+
+function toggleDarkMode() {
+    document.body.classList.toggle("dark-mode");
+    const isDark = document.body.classList.contains("dark-mode");
+    localStorage.setItem(THEME_KEY, isDark ? "dark" : "light");
+    document.getElementById("themeToggleBtn").textContent = isDark ? "☀️" : "🌙";
+}
+
+let records = JSON.parse(
+    localStorage.getItem(STORAGE_KEY) || "null"
+);
+
+if (!Array.isArray(records) || records.length !== 20) {
+    records = Array.from({ length: 20 }, () => ({
+        message: "",
+        recorder: "",
+        time: "",
+        saveTimestamp: 0
+    }));
+}
+
+function saveStorage() {
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(records)
+    );
+}
+
+// ฟังก์ชัน Popup Modal สวยๆ
+function showModal({ title, desc, icon = "✅", showCancel = false, onConfirm = null }) {
+    document.getElementById("modalTitle").textContent = title;
+    document.getElementById("modalDesc").textContent = desc;
+    document.getElementById("modalIcon").textContent = icon;
+    
+    const btnGroup = document.getElementById("modalBtnGroup");
+    btnGroup.innerHTML = "";
+
+    if (showCancel) {
+        const cancelBtn = document.createElement("button");
+        cancelBtn.className = "modal-btn cancel";
+        cancelBtn.textContent = "ยกเลิก";
+        cancelBtn.onclick = closeModal;
+        btnGroup.appendChild(cancelBtn);
+
+        const confirmBtn = document.createElement("button");
+        confirmBtn.className = "modal-btn danger";
+        confirmBtn.textContent = "ยืนยันลบ";
+        confirmBtn.onclick = () => {
+            closeModal();
+            if (onConfirm) onConfirm();
+        };
+        btnGroup.appendChild(confirmBtn);
+    } else {
+        const okBtn = document.createElement("button");
+        okBtn.className = "modal-btn";
+        okBtn.textContent = "ตกลง";
+        okBtn.onclick = closeModal;
+        btnGroup.appendChild(okBtn);
+    }
+
+    document.getElementById("customModal").classList.add("active");
+}
+
+function closeModal() {
+    document.getElementById("customModal").classList.remove("active");
+}
+
+// โหมดเต็มจอ
+function toggleFullScreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+            console.error(err);
+        });
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        }
+    }
+}
+
+function renderBoard() {
+    const left = document.getElementById("leftColumn");
+    const right = document.getElementById("rightColumn");
+
+    left.innerHTML = "";
+    right.innerHTML = "";
+
+    const currentTime = Date.now();
+    const TWO_MINUTES = 2 * 60 * 1000;
+
+    records.forEach((item, index) => {
+        const row = document.createElement("div");
+        row.className = "topic";
+
+        if (item.saveTimestamp && (currentTime - item.saveTimestamp < TWO_MINUTES)) {
+            row.classList.add("flashing");
+            const remainingTime = TWO_MINUTES - (currentTime - item.saveTimestamp);
+            setTimeout(() => {
+                row.classList.remove("flashing");
+            }, remainingTime);
+        }
+
+        row.innerHTML = `
+            <div class="topic-row-top">
+                <input
+                    class="message"
+                    type="text"
+                    placeholder="กรอกข้อความประชาสัมพันธ์..."
+                    value=""
+                >
+                <input
+                    class="recorder"
+                    type="text"
+                    placeholder="ผู้บันทึก"
+                    value=""
+                >
+                <button class="action-btn save" type="button">บันทึก</button>
+                <button class="action-btn delete" type="button">ลบ</button>
+            </div>
+            <div class="timestamp"></div>
+        `;
+
+        const messageInput = row.querySelector(".message");
+        const recorderInput = row.querySelector(".recorder");
+        const timestamp = row.querySelector(".timestamp");
+        const saveButton = row.querySelector(".save");
+        const deleteButton = row.querySelector(".delete");
+
+        messageInput.value = item.message || "";
+        recorderInput.value = item.recorder || "";
+        timestamp.textContent = item.time
+            ? "บันทึกเมื่อ: " + item.time
+            : "สถานะ: ยังไม่บันทึก";
+
+        const checkCancelWord = () => {
+            if (messageInput.value.includes("งด")) {
+                row.classList.add("cancel-mode");
+            } else {
+                row.classList.remove("cancel-mode");
+            }
+        };
+
+        checkCancelWord();
+        messageInput.addEventListener("input", checkCancelWord);
+
+        saveButton.addEventListener("click", () => {
+            const message = messageInput.value.trim();
+            const recorder = recorderInput.value.trim();
+
+            if (!message) {
+                showModal({
+                    title: "กรุณากรอกข้อความ",
+                    desc: "คุณยังไม่ได้กรอกข้อความประชาสัมพันธ์ในช่องนี้",
+                    icon: "⚠️"
+                });
+                messageInput.focus();
+                return;
+            }
+
+            if (!recorder) {
+                showModal({
+                    title: "กรุณากรอกชื่อผู้บันทึก",
+                    desc: "โปรดใส่ชื่อหรือรหัสผู้บันทึกก่อนทำการบันทึก",
+                    icon: "⚠️"
+                });
+                recorderInput.focus();
+                return;
+            }
+
+            const now = new Date();
+            const timeStampValue = now.getTime();
+
+            const dateTime = now.toLocaleString("th-TH", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false
+            });
+
+            records[index] = {
+                message: message,
+                recorder: recorder,
+                time: dateTime,
+                saveTimestamp: timeStampValue
+            };
+
+            saveStorage();
+            timestamp.textContent = "บันทึกเมื่อ: " + dateTime;
+
+            row.classList.add("flashing");
+            setTimeout(() => {
+                row.classList.remove("flashing");
+            }, TWO_MINUTES);
+
+            showModal({
+                title: "บันทึกสำเร็จ",
+                desc: `บันทึกรายการช่องที่ ${index + 1} เรียบร้อยแล้ว`,
+                icon: "🎉"
+            });
+        });
+
+        deleteButton.addEventListener("click", () => {
+            showModal({
+                title: "ยืนยันการลบข้อมูล",
+                desc: `คุณต้องการลบข้อมูลในช่องที่ ${index + 1} ใช่หรือไม่?`,
+                icon: "🗑️",
+                showCancel: true,
+                onConfirm: () => {
+                    records[index] = {
+                        message: "",
+                        recorder: "",
+                        time: "",
+                        saveTimestamp: 0
+                    };
+
+                    saveStorage();
+                    messageInput.value = "";
+                    recorderInput.value = "";
+                    timestamp.textContent = "สถานะ: ยังไม่บันทึก";
+                    row.classList.remove("flashing");
+                    checkCancelWord();
+                }
+            });
+        });
+
+        if (index < 10) {
+            left.appendChild(row);
+        } else {
+            right.appendChild(row);
+        }
+    });
+}
+
+renderBoard();
+</script>
+
+</body>
+</html>
